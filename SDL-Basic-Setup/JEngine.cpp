@@ -318,29 +318,23 @@ std::list<Element*>* ImageManager::getListPointer()
 	return this->ImageList;
 }
 
-/*
 
-
-
-JEngine
-VVVVVVVVVVVVV
-
-
-
-
-
-*/
+/**
+Name: Init
+Description: Initilizes the window to a 640x480 pixel screen that is not limited in its frame rate
+	Refer to init later to find full details. 
+**/
 int JEngine::init() {
 	return init("Test Window", 640, 480, 0);
 }
-void JEngine::refreshScreen()
-{
-
-	this->paint();
-	this->jInput->update();
-	
-}
+/**
+Name: Init
+Description: Initilizes the window to a 640x480 pixel screen that is not limited in its frame rate
+Refer to init later to find full details.
+**/
 int JEngine::init(std::string title, int width, int height, int maxFrameRate) {
+	//Initializes all of the functions of SDL
+	//TODO: Optimize for necessities.
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
 	{
 		printf("JEngine Window Could Not Be Created\n SDL Error: %s\n", SDL_GetError());
@@ -370,6 +364,13 @@ int JEngine::init(std::string title, int width, int height, int maxFrameRate) {
 		this->jInput = new JInput();
 	}
 	return 0;
+}
+void JEngine::refreshScreen()
+{
+
+	this->paint();
+	this->jInput->update();
+
 }
 void JEngine::setInputFrameIndependant(bool x)
 {
@@ -418,6 +419,7 @@ void JEngine::paint() {
 	}
 
 	SDL_RenderClear(renderer);
+
 	this->imageManager->getListPointer()->begin();
 	std::list<Element*>::iterator it;
 	std::list<Element*>::iterator itEnd = imageManager->getListPointer()->end();
@@ -431,10 +433,10 @@ void JEngine::paint() {
 	}
 
 	SDL_RenderPresent(this->renderer);
-	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0x00, 0x01, 0x10, 0xFF);
-	totalFrames++;
 	timeLastPainted = SDL_GetTicks();
 
+	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0x00, 0x01, 0x10, 0xFF);
+	totalFrames++;
 
 
 }

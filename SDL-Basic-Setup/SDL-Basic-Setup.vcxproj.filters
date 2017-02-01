@@ -21,15 +21,9 @@
     <ClCompile Include="JEngine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Elements.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="JEngine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="j.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

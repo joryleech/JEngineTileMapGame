@@ -1,14 +1,13 @@
 #include <SDL.h>
 #include <stdio.h>
 #include <iostream>
-#include "j.h"
+
 #include "JEngine.h"
 
-
+JEngine* j;
 int main(int argc, char* args[])
 {
 	
-	//JEngine* j = new JEngine();
 	j = new JEngine(); 
 	j->setInputFrameIndependant(true);
 	j->init("Window",1920,1080,60);

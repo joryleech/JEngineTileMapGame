@@ -40,11 +40,6 @@ protected:
 	double angle;
 	int imgwidth, imgheight;
 };
-class JRenderer : public Element {
-public:
-	void render();
-private:
-};
 class JBoundingBox {
 public:
 
@@ -105,6 +100,11 @@ private:
 	int width;int height;
 	Color color;
 	
+};
+//TODO: Make JRenderer Class. A Renderable object that acts as a smaller screen inside a screen.
+class JRenderer: public Element
+{
+
 };
 class ImageManager
 {
