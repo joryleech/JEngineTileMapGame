@@ -136,9 +136,6 @@
     <ClInclude Include="j.h" />
     <ClInclude Include="JEngine.h" />
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\..\..\Pictures\2.bmp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
