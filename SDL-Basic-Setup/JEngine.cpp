@@ -237,12 +237,12 @@ void Image::render()
 	if (this->image == NULL) {
 	}
 	else if (iX == 0 && iY == 0 && blitWidth == 0 && blitHeight == 0) {
-		SDL_Rect dest = { (int)std::round(this->x)-windowAndRenderer->getCameraX(),(int)std::round(this->y) - windowAndRenderer->getCameraY(), this->imgwidth*scale, this->imgheight*scale };
+		SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y), this->imgwidth*scale, this->imgheight*scale };
 		SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->image, NULL, &dest,this->angle,NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 	}
 	else {
 		SDL_Rect blit = { iX,iY,blitWidth,blitHeight };
-		SDL_Rect dest = { (int)std::round(this->x) - windowAndRenderer->getCameraX() ,(int)std::round(this->y) - windowAndRenderer->getCameraX(), this->blitWidth*scale, this->blitHeight*scale };
+		SDL_Rect dest = { (int)std::round(this->x) ,(int)std::round(this->y), this->blitWidth*scale, this->blitHeight*scale };
 		SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->image, &blit, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 	}
 }
@@ -323,7 +323,7 @@ void JRenderer::render() {
 	}
 
 	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL);
-	SDL_Rect dest = { (int)std::round(this->x) - windowAndRenderer->getCameraX(),(int)std::round(this->y) - windowAndRenderer->getCameraY(),((int)this->width*scale), ((int) this->height*scale) };
+	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*scale), ((int) this->height*scale) };
 	SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->renderTexture, NULL, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 }
 
@@ -548,24 +548,6 @@ Uint32 JEngine::getTimeStep()
 JInput * JEngine::getJInput()
 {
 	return this->jInput;
-}
-double JEngine::getCameraX()
-{
-	return cameraX;
-}
-double JEngine::getCameraY()
-{
-	return cameraY;
-}
-void JEngine::moveCameraTo(double x, double y)
-{
-	this->cameraX = x;
-	this->cameraY = y;
-}
-void JEngine::moveCameraBy(double x, double y)
-{
-	this->cameraX += (x*windowAndRenderer->getTimeStep() / 1000.f);
-	this->cameraY += (y*windowAndRenderer->getTimeStep() / 1000.f);
 }
 SDL_Renderer* JEngine::getRenderer()
 {

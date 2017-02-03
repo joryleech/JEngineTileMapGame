@@ -181,12 +181,9 @@ public:
 	Element* addElement(Element* e);
 	Uint32 getTimeStep();
 	JInput* getJInput();
-	double getCameraX(); double getCameraY();
-	void moveCameraTo(double x, double y);
-	void moveCameraBy(double x, double y);
+
 private:
-	double cameraX=0;
-	double cameraY=0;
+
 	int maxFrameRate;
 	ImageManager* imageManager;
 	SDL_Window* window;
