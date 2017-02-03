@@ -22,7 +22,7 @@ public:
 	Element();
 	bool hidden = false;
 
-	virtual double getX();	double getY();	virtual void setX(double);	void setY(double); void hide(); void show(); bool isHidden();
+	virtual double getX();	double getY();	virtual void setX(double);	void setY(double); void hide(); void show(); bool isHidden(); virtual double getScale(); virtual void setScale(double scale);
 	virtual void render() {};
 	void moveBy(double x, double y);
 	void moveTo(double x, double y);
@@ -35,6 +35,7 @@ public:
 protected:
 	double x;
 	double y;
+	double scale=1;
 	SDL_RendererFlip flipHoriz;
 	SDL_RendererFlip flipVert;
 	double angle;
@@ -76,11 +77,9 @@ public:
 	Image(std::string url,int x,int y);
 	Image(Image* url, int x, int y);
 	~Image();
-	void setScale(double); double getScale();
 	double getWidth();
 	double getHeight();
 private:
-	double scale=1;
 	int iX, iY;
 	SDL_Texture* image;bool imageOwned;
 };
@@ -101,11 +100,6 @@ private:
 	Color color;
 	
 };
-//TODO: Make JRenderer Class. A Renderable object that acts as a smaller screen inside a screen.
-class JRenderer: public Element
-{
-
-};
 class ImageManager
 {
 public:
@@ -114,14 +108,36 @@ public:
 	Element* addElement(Element* i);
 	void removeElement(Element* r);
 	void removeAndDeleteElement(Element* r);
+	void removeAndDeleteAllElements();
 	void pushElementBack(Element* r);
 	int pushToBack(Element* r);
 	int pullToFront(Element* r);
 	std::list<Element*>* getListPointer();
 private:
 	std::list<Element*>* ImageList;
-	
+
 };
+//TODO: Make JRenderer Class. A Renderable object that acts as a smaller screen inside a screen.
+class JRenderer: public Element
+{
+public:
+	JRenderer(double, double, int,int);
+	~JRenderer();
+	
+	ImageManager * getImageManager();
+	ImageManager * setImageManager(ImageManager * i);
+	Element* addElement(Element* e);
+	void render();
+	void setWidth(int x); void setHeight(int y);
+private:
+	int width;
+	int height;
+	SDL_Texture * createRenderTexture();
+	bool wasSizeChanged = false;
+	ImageManager* imageManager;
+	SDL_Texture * renderTexture;
+};
+
 class JInput
 {
 public:
@@ -161,7 +177,7 @@ public:
 	void setWindowFullScreen();
 	int setMaxFrameRate(int x);
 	ImageManager* getImageManager();
-	ImageManager * getImageManager(ImageManager * i);
+	ImageManager * setImageManager(ImageManager * i);
 	Element* addElement(Element* e);
 	Uint32 getTimeStep();
 	JInput* getJInput();

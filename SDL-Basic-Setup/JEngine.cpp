@@ -65,6 +65,14 @@ void Element::setY(double newY)
 bool Element::isHidden() {
 	return (this->hidden);
 }
+void Element::setScale(double scale)
+{
+	this->scale = scale;
+}
+double Element::getScale()
+{
+	return this->scale;
+}
 void Element::moveBy(double x2, double y2)
 {
 	this->x += (x2*windowAndRenderer->getTimeStep() / 1000.f);
@@ -149,13 +157,6 @@ Image::Image(Image* img, int x, int y) {
 	scale = 1;
 	iX = 0;iY = 0;blitWidth = 0;blitHeight = 0;
 }
-void Image::setScale(double newScale)
-{
-	this->scale = newScale;
-}
-double Image::getScale() {
-	return this->scale;
-}
 double Image::getWidth()
 {
 	if (blitWidth==0) {
@@ -226,7 +227,7 @@ void Image::setBlit(int x2, int y2, int width2, int height2) {
 	iX = x2;iY = y2;blitWidth = width2; blitHeight = height2;
 }
 Image::~Image() {
-	if (imageOwned &&image != nullptr) {
+	if (imageOwned && image != nullptr) {
 		SDL_DestroyTexture(this->image);
 	}
 	image = nullptr;
@@ -262,7 +263,7 @@ Rect::Rect(double x2, double y2, int width2, int height2) {
 }
 void Rect::render()
 {
-	rect = { (int)std::round(this->x),(int)std::round(this->y), this->width, this->height };
+	rect = { (int)std::round(this->x),(int)std::round(this->y),(int) this->width*((int)scale), this->height*((int)scale) };
 
 	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), color.r, color.g, color.b, color.a);
 	SDL_RenderFillRect(windowAndRenderer->getRenderer(), &rect);
@@ -277,6 +278,81 @@ void Rect::setHeight(int x)
 {
 	this->height = x;
 }
+
+JRenderer::JRenderer(double x, double y, int width, int height)
+{
+	this->x = x; this->y = y;
+	this->width = width; this->height = height;
+	this->renderTexture = this->createRenderTexture();
+	this->imageManager = new ImageManager();
+}
+JRenderer::~JRenderer() {
+	this->imageManager->removeAndDeleteAllElements();
+	if (this->imageManager != nullptr) {
+		delete(this->imageManager);this->imageManager = nullptr;
+	}
+	if (this->renderTexture != nullptr) {
+		SDL_DestroyTexture(this->renderTexture);
+		this->renderTexture = nullptr;
+	}
+}
+ImageManager * JRenderer::getImageManager()
+{
+	return this->imageManager;
+}
+Element * JRenderer::addElement(Element * e)
+{
+	this->getImageManager()->addElement(e);
+	return e;
+}
+void JRenderer::render() {
+	if (this->wasSizeChanged) {
+		this->createRenderTexture();
+		wasSizeChanged = false;
+	}
+	std::list<Element*>::iterator it;
+	std::list<Element*>::iterator itEnd = this->imageManager->getListPointer()->end();
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->renderTexture);
+	
+	SDL_RenderClear(windowAndRenderer->getRenderer());
+	for (it = this->imageManager->getListPointer()->begin();it != itEnd;++it)
+	{
+		if (!(*it)->isHidden()) {
+			(*it)->render();
+		}
+	}
+
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL);
+	SDL_Rect dest = { (int)std::round(this->x) - windowAndRenderer->getCameraX(),(int)std::round(this->y) - windowAndRenderer->getCameraY(),((int)this->width*scale), ((int) this->height*scale) };
+	SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->renderTexture, NULL, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
+}
+
+SDL_Texture * JRenderer::createRenderTexture()
+{
+	if (this->renderTexture != nullptr) {
+		SDL_DestroyTexture(this->renderTexture);
+		this->renderTexture = nullptr;
+	}
+	this->renderTexture=SDL_CreateTexture(windowAndRenderer->getRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, this->width, this->height);
+	if (this->renderTexture == nullptr) {
+		std::cout << "Unable to create renderer texture";
+	}
+	return this->renderTexture;
+}
+void JRenderer::setWidth(int x)
+{
+	this->width = x;
+	this->wasSizeChanged = true;
+}
+
+void JRenderer::setHeight(int y)
+{
+	this->height = y;
+	this->wasSizeChanged = true;
+}
+
+
+
 
 /*
 
@@ -308,6 +384,14 @@ void ImageManager::removeAndDeleteElement(Element * r)
 {
 	this->ImageList->remove(r);
 	delete(r);
+}
+void ImageManager::removeAndDeleteAllElements()
+{
+	while (!(this->ImageList->empty())) {
+		Element * x = (*(this->ImageList->begin()));
+		this->ImageList->remove(x);
+		delete(x);
+	}
 }
 void ImageManager::pushElementBack(Element * r)
 {
@@ -420,7 +504,7 @@ void JEngine::paint() {
 
 	SDL_RenderClear(renderer);
 
-	this->imageManager->getListPointer()->begin();
+	//this->imageManager->getListPointer()->begin();
 	std::list<Element*>::iterator it;
 	std::list<Element*>::iterator itEnd = imageManager->getListPointer()->end();
 	for (it = this->imageManager->getListPointer()->begin();
@@ -447,7 +531,7 @@ SDL_Window* JEngine::getWindow()
 ImageManager* JEngine::getImageManager() {
 	return imageManager;
 }
-ImageManager* JEngine::getImageManager(ImageManager* i) {
+ImageManager* JEngine::setImageManager(ImageManager* i) {
 	ImageManager* x = this->getImageManager();
 	this->imageManager = i;
 	return x;
@@ -652,3 +736,4 @@ void JBoundingBox::findDifferenceForCollisions(JBoundingBox * s1, JBoundingBox *
 		toReturn[0] = xDif;
 	}
 }
+
