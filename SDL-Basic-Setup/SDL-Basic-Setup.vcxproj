@@ -129,7 +129,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="JEngine.cpp" />
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="TestCode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="JEngine.h" />

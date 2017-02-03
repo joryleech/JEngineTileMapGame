@@ -257,6 +257,10 @@ Rect::Rect(double x2, double y2, int width, int height, Uint8 r, Uint8 g, Uint8 
 
 }
 
+Rect::~Rect()
+{
+}
+
 Rect::Rect(double x2, double y2, int width2, int height2) {
 	Rect(x2, y2, width2, height2, 0xFF, 0x00, 0xFF, 0xFF);
 
@@ -387,10 +391,9 @@ void ImageManager::removeAndDeleteElement(Element * r)
 }
 void ImageManager::removeAndDeleteAllElements()
 {
-	while (!(this->ImageList->empty())) {
-		Element * x = (*(this->ImageList->begin()));
-		this->ImageList->remove(x);
-		delete(x);
+	while (!this->ImageList->empty()) {
+		delete(this->ImageList->front());
+		this->ImageList->pop_front();
 	}
 }
 void ImageManager::pushElementBack(Element * r)

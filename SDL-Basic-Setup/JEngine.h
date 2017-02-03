@@ -90,6 +90,7 @@ public:
 	SDL_Rect rect;
 	Rect(double, double, int, int);
 	Rect(double, double, int, int, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+	~Rect();
 	Color setColor(Uint8 r, Uint8 g, Uint8 b, Uint8 az);
 	Color getColor();
 	void render();
