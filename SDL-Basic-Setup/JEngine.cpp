@@ -317,7 +317,9 @@ void JRenderer::render() {
 	std::list<Element*>::iterator it;
 	std::list<Element*>::iterator itEnd = this->imageManager->getListPointer()->end();
 	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->renderTexture);
-	
+	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0, 0, 0, 0);
+	SDL_SetTextureBlendMode(this->renderTexture, SDL_BLENDMODE_BLEND);
+
 	SDL_RenderClear(windowAndRenderer->getRenderer());
 	for (it = this->imageManager->getListPointer()->begin();it != itEnd;++it)
 	{
@@ -337,6 +339,7 @@ SDL_Texture * JRenderer::createRenderTexture()
 		SDL_DestroyTexture(this->renderTexture);
 		this->renderTexture = nullptr;
 	}
+	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0, 0, 0, 0);
 	this->renderTexture=SDL_CreateTexture(windowAndRenderer->getRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, this->width, this->height);
 	if (this->renderTexture == nullptr) {
 		std::cout << "Unable to create renderer texture";
@@ -449,6 +452,7 @@ int JEngine::init(std::string title, int width, int height, int maxFrameRate) {
 		SDL_SetRenderDrawColor(this->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 		lastUpdate = SDL_GetTicks();
 		this->jInput = new JInput();
+		this->frameIndependantInput = false;
 	}
 	return 0;
 }
@@ -469,11 +473,14 @@ void JEngine::paint() {
 	Uint32 oTimeStep;
 	bool return2 = false;
 	if (frameIndependantInput) {
+	//This version should not be default.
+	//This works by returning to the game loop instead of rendering if the frame rate sleep is not met
+	//More resource intensive. 
+	//Doesn't appear to make a difference.
 		if (this->maxFrameRate > 0) {
-			oTimeStep = currentTicks - lastUpdate;
 			Uint32 timeSincePaint = currentTicks - timeLastPainted;
 			if (timeSincePaint < this->timeBetweenFrames) {
-				SDL_Delay(15);
+				SDL_Delay(1);
 				return2 = true;//SDL_Delay(timeBetweenFrames - (oTimeStep));
 			}
 
@@ -483,7 +490,6 @@ void JEngine::paint() {
 			SDL_Delay(1);
 			timeStep = 1;
 		}
-		timeStep++;
 		lastUpdate = SDL_GetTicks();
 
 		if (return2) { return; }
@@ -502,7 +508,6 @@ void JEngine::paint() {
 		}
 		timeStep++;
 		lastUpdate = SDL_GetTicks();
-		std::cout << "dependant\n";
 	}
 
 	SDL_RenderClear(renderer);
@@ -579,7 +584,7 @@ JInput::JInput()
 }
 void JInput::update() {
 
-	while (SDL_PollEvent(&event) != 0) {
+	if (SDL_PollEvent(&event) != 0) {
 		if (event.type == SDL_MOUSEMOTION)
 		{
 			SDL_GetMouseState(&mouseX, &mouseY);
@@ -635,6 +640,14 @@ bool JBoundingBox::isColliding(JBoundingBox* that)
 	if (this->x + this->width < that->x || this->x > that->x + that->width) return false;
 	if (this->y + this->height < that->y || this->y >that->y + that->width) return false;
 	return true;
+}
+bool JBoundingBox::isColliding(int x, int y)
+{
+	//Todo: Fix this with actual point containing algorithm
+	JBoundingBox* temp = new JBoundingBox(x, y, 1, 1);
+	bool temp2= this->isColliding(temp);
+	delete(temp);
+	return temp2;
 }
 void JBoundingBox::resolveCollision(Element* link, JBoundingBox* that)
 {
