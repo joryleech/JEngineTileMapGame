@@ -417,6 +417,18 @@ Description: Initilizes the window to a 640x480 pixel screen that is not limited
 int JEngine::init() {
 	return init("Test Window", 640, 480, 0);
 }
+JEngine::~JEngine()
+{
+	//Todo Check this deletes everything.
+
+	if (this->imageManager != nullptr) {
+		delete(imageManager);
+		imageManager = nullptr;
+	}
+	SDL_DestroyWindow(this->window);
+	SDL_DestroyRenderer(this->renderer);
+	windowAndRenderer = NULL;
+}
 /**
 Name: Init
 Description: Initilizes the window to a 640x480 pixel screen that is not limited in its frame rate
@@ -431,7 +443,7 @@ int JEngine::init(std::string title, int width, int height, int maxFrameRate) {
 		return -1;
 	}
 	if (windowAndRenderer == NULL) {
-		SDL_ShowCursor(SDL_DISABLE);
+		SDL_ShowCursor(SDL_ENABLE);
 		windowAndRenderer = this;
 		this->width = width;this->height = height; this->windowTitle = title; this->setMaxFrameRate(maxFrameRate);
 		this->window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, this->width, this->height, SDL_WINDOW_SHOWN);
@@ -458,9 +470,10 @@ int JEngine::init(std::string title, int width, int height, int maxFrameRate) {
 }
 void JEngine::refreshScreen()
 {
-
-	this->paint();
-	this->jInput->update();
+	if (windowAndRenderer != nullptr) {
+		this->paint();
+		this->jInput->update();
+	}
 
 }
 void JEngine::setInputFrameIndependant(bool x)
@@ -557,6 +570,10 @@ JInput * JEngine::getJInput()
 {
 	return this->jInput;
 }
+bool JEngine::getQuit()
+{
+	return this->windowShutDown;
+}
 SDL_Renderer* JEngine::getRenderer()
 {
 	return this->renderer;
@@ -585,6 +602,9 @@ JInput::JInput()
 void JInput::update() {
 
 	if (SDL_PollEvent(&event) != 0) {
+		if (event.type == SDL_QUIT) {
+			windowAndRenderer->windowShutDown = true;
+		}
 		if (event.type == SDL_MOUSEMOTION)
 		{
 			SDL_GetMouseState(&mouseX, &mouseY);

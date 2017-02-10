@@ -168,6 +168,7 @@ private:
 class JEngine
 {
 public: 
+	~JEngine();
 	int init(std::string title, int widht,int height, int maxFrameRate);
 	void setInputFrameIndependant(bool x);
 	int init();
@@ -182,7 +183,8 @@ public:
 	Element* addElement(Element* e);
 	Uint32 getTimeStep();
 	JInput* getJInput();
-
+	bool getQuit();
+	bool windowShutDown = false;
 private:
 
 	int maxFrameRate;
@@ -198,6 +200,7 @@ private:
 	JInput* jInput;
 	Uint32 timeLastPainted;
 	bool frameIndependantInput;
+
 
 };
 class JTimer
