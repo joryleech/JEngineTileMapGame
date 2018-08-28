@@ -237,7 +237,7 @@ void Image::render()
 	if (this->image == NULL) {
 	}
 	else if (iX == 0 && iY == 0 && blitWidth == 0 && blitHeight == 0) {
-		SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y), this->imgwidth*scale, this->imgheight*scale };
+		SDL_Rect dest = { std::round(this->x),std::round(this->y), this->imgwidth*scale, this->imgheight*scale };
 		SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->image, NULL, &dest,this->angle,NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 	}
 	else {
@@ -247,7 +247,7 @@ void Image::render()
 	}
 }
 
-Rect::Rect(double x2, double y2, int width, int height, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
+Rect::Rect(double x2, double y2, float width, float height, Uint8 r, Uint8 g, Uint8 b, Uint8 a)
 {
 	Element();
 	this->setX(x2);
@@ -261,24 +261,34 @@ Rect::~Rect()
 {
 }
 
-Rect::Rect(double x2, double y2, int width2, int height2) {
+Rect::Rect(double x2, double y2, float width2, float height2) {
 	Rect(x2, y2, width2, height2, 0xFF, 0x00, 0xFF, 0xFF);
 
 }
 void Rect::render()
 {
-	rect = { (int)std::round(this->x),(int)std::round(this->y),(int) this->width*((int)scale), this->height*((int)scale) };
+	rect = { (int)std::round(this->x),(int)std::round(this->y),(int)std::round(this->width*((int)scale)),(int)std::round(this->height*((int)scale)) };
 
 	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), color.r, color.g, color.b, color.a);
 	SDL_RenderFillRect(windowAndRenderer->getRenderer(), &rect);
 }
 
-void Rect::setWidth(int x)
+float Rect::getWidth()
+{
+	return this->width;
+}
+
+float Rect::getHeight()
+{
+	return this->height;
+}
+
+void Rect::setWidth(float x)
 {
 	this->width = x;
 }
 
-void Rect::setHeight(int x)
+void Rect::setHeight(float x)
 {
 	this->height = x;
 }
@@ -310,6 +320,30 @@ Element * JRenderer::addElement(Element * e)
 	return e;
 }
 void JRenderer::render() {
+	if (autoRender) {
+		if (this->wasSizeChanged) {
+			this->createRenderTexture();
+			wasSizeChanged = false;
+		}
+		std::list<Element*>::iterator it;
+		std::list<Element*>::iterator itEnd = this->imageManager->getListPointer()->end();
+		SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->renderTexture);
+		SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0, 0, 0, 0);
+		SDL_SetTextureBlendMode(this->renderTexture, SDL_BLENDMODE_BLEND);
+
+		SDL_RenderClear(windowAndRenderer->getRenderer());
+		for (it = this->imageManager->getListPointer()->begin(); it != itEnd; ++it)
+		{
+			if (!(*it)->isHidden()) {
+				(*it)->render();
+			}
+		}
+	}
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL);
+	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*scale), ((int) this->height*scale) };
+	SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->renderTexture, NULL, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
+}
+void JRenderer::forceRenderTexture() {
 	if (this->wasSizeChanged) {
 		this->createRenderTexture();
 		wasSizeChanged = false;
@@ -321,18 +355,13 @@ void JRenderer::render() {
 	SDL_SetTextureBlendMode(this->renderTexture, SDL_BLENDMODE_BLEND);
 
 	SDL_RenderClear(windowAndRenderer->getRenderer());
-	for (it = this->imageManager->getListPointer()->begin();it != itEnd;++it)
+	for (it = this->imageManager->getListPointer()->begin(); it != itEnd; ++it)
 	{
 		if (!(*it)->isHidden()) {
 			(*it)->render();
 		}
 	}
-
-	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL);
-	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*scale), ((int) this->height*scale) };
-	SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->renderTexture, NULL, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 }
-
 SDL_Texture * JRenderer::createRenderTexture()
 {
 	if (this->renderTexture != nullptr) {
@@ -356,6 +385,11 @@ void JRenderer::setHeight(int y)
 {
 	this->height = y;
 	this->wasSizeChanged = true;
+}
+
+void JRenderer::setAutoRender(bool t)
+{
+	this->autoRender = t;
 }
 
 
@@ -508,7 +542,8 @@ void JEngine::paint() {
 		if (return2) { return; }
 	}
 	else {
-		if (this->maxFrameRate > 0) {
+		//a negative framerate indicates no max frame rate.
+		if (this->maxFrameRate >= 0) {
 			oTimeStep = currentTicks - lastUpdate;
 			if (oTimeStep < this->timeBetweenFrames) {
 				SDL_Delay(timeBetweenFrames - (oTimeStep));
@@ -519,8 +554,7 @@ void JEngine::paint() {
 			SDL_Delay(1);
 			timeStep = 1;
 		}
-		timeStep++;
-		lastUpdate = SDL_GetTicks();
+		lastUpdate = currentTicks;
 	}
 
 	SDL_RenderClear(renderer);

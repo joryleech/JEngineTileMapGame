@@ -63,6 +63,11 @@ private:
 
 	double x, y; int width, height;
 };
+class Text : public Element
+{
+	Text(std::string text, float x, float y);
+
+};
 class Image: public Element
 {
 public:
@@ -88,16 +93,16 @@ class Rect : public Element
 {
 public:
 	SDL_Rect rect;
-	Rect(double, double, int, int);
-	Rect(double, double, int, int, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+	Rect(double, double, float, float);
+	Rect(double, double, float, float, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 	~Rect();
 	Color setColor(Uint8 r, Uint8 g, Uint8 b, Uint8 az);
 	Color getColor();
 	void render();
-	int getWidth(); int getHeight();
-	void setWidth(int); void setHeight(int);
+	float getWidth(); float getHeight();
+	void setWidth(float); void setHeight(float);
 private:
-	int width;int height;
+	float width;float height;
 	Color color;
 	
 };
@@ -129,8 +134,11 @@ public:
 	ImageManager * setImageManager(ImageManager * i);
 	Element* addElement(Element* e);
 	void render();
+	void forceRenderTexture();
 	void setWidth(int x); void setHeight(int y);
+	void setAutoRender(bool);
 private:
+	bool autoRender = true;
 	int width;
 	int height;
 	SDL_Texture * createRenderTexture();
