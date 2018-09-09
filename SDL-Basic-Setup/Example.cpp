@@ -7,6 +7,7 @@
 ******************************/
 #include "JEngine.h";
 #include <iostream>
+#include "Tilemap.h"
 /********************
 *Name: ImageExample
 *Params: None
@@ -64,6 +65,10 @@ void InputExample()
 	}
 	delete(engine);
 }
+
+
+
+
 static int forceRenderTextureThread(void* ptr)
 {
 	JRenderer* text = (JRenderer*)ptr;

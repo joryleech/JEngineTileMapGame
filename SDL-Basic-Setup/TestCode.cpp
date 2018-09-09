@@ -11,7 +11,7 @@
 #include <iostream>
 
 #include "JEngine.h"
-
+#include "Tilemap.h"
 
 
 void createMap(JRenderer* map) {

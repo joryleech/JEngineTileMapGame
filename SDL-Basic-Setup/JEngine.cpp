@@ -41,6 +41,7 @@ Element::Element() {
 	int y = 0;
 	flipHoriz = SDL_FLIP_NONE;
 	angle = 0;
+	this->setBlendMode(SDL_BLENDMODE_BLEND);
 }
 double Element::getX() {
 	return this->x;
@@ -136,6 +137,13 @@ void Element::setFlip(SDL_RendererFlip x)
 	}
 }
 
+void Element::setBlendMode(SDL_BlendMode newBlendMode)
+{
+	this->blendmode = newBlendMode;
+}
+SDL_BlendMode Element::getBlendMode() {
+	return (this->blendmode);
+}
 
 
 
@@ -319,30 +327,7 @@ Element * JRenderer::addElement(Element * e)
 	this->getImageManager()->addElement(e);
 	return e;
 }
-void JRenderer::render() {
-	if (autoRender) {
-		if (this->wasSizeChanged) {
-			this->createRenderTexture();
-			wasSizeChanged = false;
-		}
-		std::list<Element*>::iterator it;
-		std::list<Element*>::iterator itEnd = this->imageManager->getListPointer()->end();
-		SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->renderTexture);
-		SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0, 0, 0, 0);
-		SDL_SetTextureBlendMode(this->renderTexture, SDL_BLENDMODE_BLEND);
 
-		SDL_RenderClear(windowAndRenderer->getRenderer());
-		for (it = this->imageManager->getListPointer()->begin(); it != itEnd; ++it)
-		{
-			if (!(*it)->isHidden()) {
-				(*it)->render();
-			}
-		}
-	}
-	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL);
-	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*scale), ((int) this->height*scale) };
-	SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->renderTexture, NULL, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
-}
 void JRenderer::forceRenderTexture() {
 	if (this->wasSizeChanged) {
 		this->createRenderTexture();
@@ -358,9 +343,18 @@ void JRenderer::forceRenderTexture() {
 	for (it = this->imageManager->getListPointer()->begin(); it != itEnd; ++it)
 	{
 		if (!(*it)->isHidden()) {
+			SDL_SetTextureBlendMode(this->renderTexture, (*it)->getBlendMode());
 			(*it)->render();
 		}
 	}
+}
+void JRenderer::render() {
+	if (autoRender) {
+		this->forceRenderTexture();
+	}
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL);
+	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*scale), ((int) this->height*scale) };
+	SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->renderTexture, NULL, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 }
 SDL_Texture * JRenderer::createRenderTexture()
 {

@@ -133,8 +133,10 @@
     <ClCompile Include="Example.cpp" />
     <ClCompile Include="JEngine.cpp" />
     <ClCompile Include="TestCode.cpp" />
+    <ClCompile Include="Tilemap.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Tilemap.h" />
     <ClInclude Include="JEngine.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

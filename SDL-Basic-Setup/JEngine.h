@@ -32,7 +32,10 @@ public:
 	void flipVertical();
 	void setFlip(SDL_RendererFlip);
 	int blitWidth, blitHeight;
+	void setBlendMode(SDL_BlendMode);
+	SDL_BlendMode getBlendMode();
 protected:
+	SDL_BlendMode blendmode;
 	double x;
 	double y;
 	double scale=1;
@@ -138,6 +141,7 @@ public:
 	void setWidth(int x); void setHeight(int y);
 	void setAutoRender(bool);
 private:
+	
 	bool autoRender = true;
 	int width;
 	int height;
