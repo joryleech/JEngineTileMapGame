@@ -7,6 +7,7 @@
 ******************************/
 #include "JEngine.h";
 #include <iostream>
+#include <string>
 #include "Tilemap.h"
 /********************
 *Name: ImageExample
@@ -130,15 +131,61 @@ void renderingThreadingTest1() {
 			if (threads[i] != NULL) {
 				SDL_WaitThread(threads[i], &x);
 			}
-		}
+		} 
 	}
 
 	delete(engine);
 }
+void print2darray(int arr[]) {
+	for (int i = 0; i < 4; i++) {
+		std::cout << (arr[i]) << "\n";
+	}
+}
+void tilingTest1() {
+	JEngine * engine = new JEngine();
+	engine->init("Image Example", 1920, 1080, 60);
+	engine->setMaxFrameRate(60);
+	Tilemap* tile;
+	tile = new Tilemap(4,4,32);
+	Image * image2 = new Image("Resources/Images/ImageExample1.png", 200, 200);
+	int x[] =
+	{
+		-1,-1,-1,-4,
+		2,2,2,4,
+		3,3,3,4,
+		4,4,4,4
+	};
+
+	print2darray(x);
+	tile->setMap(x);
+	std::cout << "Starting Game Loop \n";
+	std::cout << tile->toString(false);
 
 
+	JRenderer * r = new JRenderer(0, 0, 640, 480);
+
+	engine->addElement(tile->getSurface());
+	r->setAutoRender(true);
+
+	engine->addElement(r);
+	while (!engine->getQuit()) {
+ 		engine->refreshScreen();
+		r->moveBy(5, 5);
+		
+	}
+
+	delete(engine);
+}
 int main(int argc, char* args[])
 {
-	renderingThreadingTest1();
+	ObjectID i = ObjectID(0,"" );
+	std::cout << std::to_string(i.tile);
+	tilingTest1();
 	return 0;
 }
+
+void arrayAttempt(const int length) {
+	int* i = new int[length];
+
+}
+

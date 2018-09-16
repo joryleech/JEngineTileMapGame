@@ -35,7 +35,7 @@ public:
 	void setBlendMode(SDL_BlendMode);
 	SDL_BlendMode getBlendMode();
 protected:
-	SDL_BlendMode blendmode;
+	SDL_BlendMode blendmode = SDL_BLENDMODE_BLEND;
 	double x;
 	double y;
 	double scale=1;
@@ -136,7 +136,9 @@ public:
 	ImageManager * getImageManager();
 	ImageManager * setImageManager(ImageManager * i);
 	Element* addElement(Element* e);
+	void renderElement(Element* e);
 	void render();
+	void forceClearTexture();
 	void forceRenderTexture();
 	void setWidth(int x); void setHeight(int y);
 	void setAutoRender(bool);
@@ -197,8 +199,11 @@ public:
 	JInput* getJInput();
 	bool getQuit();
 	bool windowShutDown = false;
+
+	void debugPrint(std::string);
 private:
 
+	bool debug=true;
 	int maxFrameRate;
 	ImageManager* imageManager;
 	SDL_Window* window;

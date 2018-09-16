@@ -328,6 +328,15 @@ Element * JRenderer::addElement(Element * e)
 	return e;
 }
 
+void JRenderer::renderElement(Element * e)
+{
+	windowAndRenderer->debugPrint("Element Rendered");
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->renderTexture);
+	SDL_SetTextureBlendMode(this->renderTexture, (e)->getBlendMode());
+	(e)->render();
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL );
+}
+
 void JRenderer::forceRenderTexture() {
 	if (this->wasSizeChanged) {
 		this->createRenderTexture();
@@ -349,12 +358,23 @@ void JRenderer::forceRenderTexture() {
 	}
 }
 void JRenderer::render() {
+	if (this->wasSizeChanged) {
+		this->createRenderTexture();
+		wasSizeChanged = false;
+	}
 	if (autoRender) {
 		this->forceRenderTexture();
 	}
 	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL);
 	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*scale), ((int) this->height*scale) };
 	SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->renderTexture, NULL, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
+}
+void JRenderer::forceClearTexture()
+{
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->renderTexture);
+	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0, 0, 0, 0);
+
+	SDL_RenderClear(windowAndRenderer->getRenderer());
 }
 SDL_Texture * JRenderer::createRenderTexture()
 {
@@ -564,6 +584,7 @@ void JEngine::paint() {
 			(*it)->render();
 		}
 	}
+	
 
 	SDL_RenderPresent(this->renderer);
 	timeLastPainted = SDL_GetTicks();
@@ -601,6 +622,12 @@ JInput * JEngine::getJInput()
 bool JEngine::getQuit()
 {
 	return this->windowShutDown;
+}
+void JEngine::debugPrint(std::string print)
+{
+	if (debug) {
+		std::cout << print;
+	}
 }
 SDL_Renderer* JEngine::getRenderer()
 {
