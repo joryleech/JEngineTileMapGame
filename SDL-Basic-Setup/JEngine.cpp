@@ -334,7 +334,8 @@ void JRenderer::renderElement(Element * e)
 	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->renderTexture);
 	SDL_SetTextureBlendMode(this->renderTexture, (e)->getBlendMode());
 	(e)->render();
-	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL );
+	//Reseting the Render target is essential after rendering, otherwise the texture will not complete rendering.
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL ); //Do not remove.
 }
 
 void JRenderer::forceRenderTexture() {

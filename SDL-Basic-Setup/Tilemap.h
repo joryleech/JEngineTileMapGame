@@ -22,6 +22,7 @@ public:
 	Tile(std::string url, CollisionBehavior colBehavior);
 	Tile(int size, CollisionBehavior colBehavior, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 	~Tile();
+	std::string toString();
 };
 
 class ObjectID {
@@ -40,7 +41,7 @@ public:
 	int height, width;
 	Tile debug;
 	Tile clear;
-	std::vector<Tile> tiles; //TODO: Change to vector to support faster random access since size is constant on runtime
+	std::vector<Tile> tiles;
 private:
 	int tilesize;
 	std::vector<ObjectID> tileMap;
@@ -49,6 +50,7 @@ public:
 	JRenderer * getSurface();
 	Tilemap(int width,int height,int tilesize);
 	void setMap(int newMap[]);
+	void setPartialMap(int Map[], int destinationX, int destinationY, int partialWidth, int partialHeight);
 	~Tilemap();
 	void renderMap();
 	void renderTile(int x, int y, int tileID);
@@ -57,6 +59,7 @@ public:
 	void setTile(int x, int y, int id, std::string info);
 	std::string toString(bool);
 	int coordToIndex(int x, int y);
+	
 
 };
 

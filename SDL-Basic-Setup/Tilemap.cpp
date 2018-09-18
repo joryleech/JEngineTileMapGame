@@ -24,6 +24,11 @@ Tile::~Tile()
 	delete (this->image);
 }
 
+std::string Tile::toString()
+{
+	return "";
+}
+
 ObjectID::ObjectID(int id, std::string info)
 {
 	this->tile = id;
@@ -58,6 +63,7 @@ Tilemap::Tilemap(int width, int height,int tilesize)
 	this->surface->setAutoRender(false);
 	this->surface->forceClearTexture();
 	surface->forceRenderTexture();
+	tiles.push_back(Tile(32, Tile::CollisionBehavior::Boundry, 0, 0, 255, 126));
 	//debug = Tile(tilesize,(Tile::CollisionBehavior)0, 255, 0, 255, 126);
 	
 }
@@ -73,6 +79,18 @@ void Tilemap::setMap(int newMap[])
 		}
 	}
 	this->renderMap();
+}
+void Tilemap::setPartialMap(int newMap[], int destinationX, int destinationY, int partialWidth, int partialHeight) {
+	int iteratorX, iteratorY;
+	for (iteratorY = 0; iteratorY < partialHeight; iteratorY++) {
+		for (iteratorX = 0; iteratorX < partialWidth; iteratorX++) {
+			int currentX = iteratorX + destinationX;
+			int currentY = iteratorY + destinationY;
+			int currentNewIndex = iteratorX + (iteratorY*partialWidth);
+			setTile(currentX, currentY, newMap[currentNewIndex]);
+		}
+	}
+	renderMap();
 }
 
 
@@ -96,7 +114,6 @@ void Tilemap::renderTile(int x, int y, int tileID) {
 }
 
 Tile * Tilemap::getTile(int index) {
-
 	if (index < 0 || index >= this->tiles.size()) {
 		return &(this->debug);
 	}

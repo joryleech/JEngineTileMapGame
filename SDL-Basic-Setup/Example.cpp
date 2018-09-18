@@ -146,32 +146,31 @@ void tilingTest1() {
 	engine->init("Image Example", 1920, 1080, 60);
 	engine->setMaxFrameRate(60);
 	Tilemap* tile;
-	tile = new Tilemap(4,4,32);
+	tile = new Tilemap(20,20,32);
 	Image * image2 = new Image("Resources/Images/ImageExample1.png", 200, 200);
 	int x[] =
 	{
-		-1,-1,-1,-4,
+		1,1,1,4,
 		2,2,2,4,
 		3,3,3,4,
 		4,4,4,4
 	};
 
 	print2darray(x);
-	tile->setMap(x);
+	tile->setPartialMap(x,0,0,4,4);
+	tile->setPartialMap(x, 10, 0, 4, 4);
 	std::cout << "Starting Game Loop \n";
 	std::cout << tile->toString(false);
 
 
-	JRenderer * r = new JRenderer(0, 0, 640, 480);
+
 
 	engine->addElement(tile->getSurface());
-	r->setAutoRender(true);
 
-	engine->addElement(r);
+	engine->addElement(image2);
 	while (!engine->getQuit()) {
  		engine->refreshScreen();
-		r->moveBy(5, 5);
-		
+		image2->moveTo(engine->getJInput()->getMouseXPos(), 100);
 	}
 
 	delete(engine);
