@@ -17,7 +17,7 @@ Tile::Tile(std::string url, CollisionBehavior colBehavior)
 Tile::Tile(int size, CollisionBehavior colBehavior,Uint8 r,Uint8 g,Uint8 b,Uint8 a)
 {
 	this->image = new Rect(0,0,size,size,r,g,b,a);
-	this->image->setBlendMode(SDL_BLENDMODE_NONE);
+	this->image->setBlendMode(SDL_BLENDMODE_BLEND);
 	this->collisionBehavior = colBehavior;
 }
 
@@ -69,7 +69,7 @@ Tilemap::Tilemap(int width, int height,int tilesize)
 	this->surface->setAutoRender(false);
 	this->surface->forceClearTexture();
 	surface->forceRenderTexture();
-	tiles.push_back(new Tile(16,Tile::CollisionBehavior::Boundry,125,125,255,125));
+	tiles.push_back(new Tile(32,Tile::CollisionBehavior::Boundry,255,0,255,0));
 	//debug = Tile(tilesize,(Tile::CollisionBehavior)0, 255, 0, 255, 126);
 	std::cout << "Tileset #"<<tiles.size();
 }
@@ -118,6 +118,13 @@ void Tilemap::renderTile(int x, int y, int tileID) {
 	tileToRender->moveTo(0, 0);
 }
 
+void Tilemap::clearTile(int x, int y) {
+	Element * tileToRender = clear.getImage();
+	tileToRender->moveTo(x*tilesize, y*tilesize);
+	surface->renderElement(tileToRender);
+	tileToRender->moveTo(0, 0);
+}
+
 
 
 Element * Tilemap::getTileImage(int index) {
@@ -136,6 +143,8 @@ void Tilemap::setTile(int x, int y, int tileID,std::string info) {
 	int index = coordToIndex(x, y);
 	tileMap.at(index).tile = tileID;
 	tileMap.at(index).info = info;
+	clearTile(x, y);
+	renderTile(x, y, tileID);
 }
 std::string Tilemap::toString(bool)
 {

@@ -42,7 +42,7 @@ class Tilemap{
 public:
 	int height, width;
 	Tile debug;
-	Tile clear;
+	Tile clear = Tile(32, Tile::CollisionBehavior::Boundry, 255, 0, 255, 0);
 	std::vector<Tile*> tiles;
 private:
 	int tilesize;
@@ -56,6 +56,7 @@ public:
 	~Tilemap();
 	void renderMap();
 	void renderTile(int x, int y, int tileID);
+	void clearTile(int x, int y);
 	Element * getTileImage(int index);
 	void setTile(int x, int y, int id);
 	void setTile(int x, int y, int id, std::string info);

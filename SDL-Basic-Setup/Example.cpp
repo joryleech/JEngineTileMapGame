@@ -163,10 +163,13 @@ void tilingTest1() {
 	engine->addElement(image2);
 
 	engine->addElement(tile->getSurface());
-
+	tile->setTile(3, 0, -1);
+	tile->setTile(3, 0, 0);
+	tile->clearTile(0, 0);
+	std::cout << tile->toString(false);
 	while (!engine->getQuit()) {
  		engine->refreshScreen();
-		image2->moveTo(engine->getJInput()->getMouseXPos(), 100);
+		image2->moveTo(engine->getJInput()->getMouseXPos()-50, engine->getJInput()->getMouseYPos()-50);
 	}
 
 	delete(engine);

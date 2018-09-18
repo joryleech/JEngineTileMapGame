@@ -20,6 +20,7 @@ class Element
 {
 public:
 	Element();
+	~Element() {};
 	bool hidden = false;
 
 	virtual double getX();	double getY();	virtual void setX(double);	void setY(double); void hide(); void show(); bool isHidden(); virtual double getScale(); virtual void setScale(double scale);

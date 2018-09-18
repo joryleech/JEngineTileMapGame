@@ -317,6 +317,7 @@ JRenderer::~JRenderer() {
 		SDL_DestroyTexture(this->renderTexture);
 		this->renderTexture = nullptr;
 	}
+	SDL_SetTextureBlendMode(renderTexture, SDL_BLENDMODE_BLEND);
 }
 ImageManager * JRenderer::getImageManager()
 {
@@ -475,8 +476,10 @@ JEngine::~JEngine()
 		delete(imageManager);
 		imageManager = nullptr;
 	}
+	delete(jInput);
 	SDL_DestroyWindow(this->window);
 	SDL_DestroyRenderer(this->renderer);
+
 	windowAndRenderer = NULL;
 }
 /**
@@ -583,6 +586,7 @@ void JEngine::paint() {
 		++it)
 	{
 		if (!(*it)->isHidden()) {
+			SDL_SetRenderDrawBlendMode(this->renderer, (*it)->getBlendMode());
 			(*it)->render();
 		}
 	}
@@ -655,6 +659,10 @@ int JEngine::setMaxFrameRate(int x)
 JInput::JInput()
 {
 	this->keyState = SDL_GetKeyboardState(NULL);
+}
+JInput::~JInput()
+{
+
 }
 void JInput::update() {
 
