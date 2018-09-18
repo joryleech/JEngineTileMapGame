@@ -34,6 +34,7 @@ public:
 	int blitWidth, blitHeight;
 	void setBlendMode(SDL_BlendMode);
 	SDL_BlendMode getBlendMode();
+	std::string toString() {};
 protected:
 	SDL_BlendMode blendmode = SDL_BLENDMODE_BLEND;
 	double x;

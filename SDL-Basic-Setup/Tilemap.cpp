@@ -1,6 +1,7 @@
 #include "Tilemap.h"
 #include <iostream>
 #include <list>
+#include <sstream>
 Element * Tile::getImage()
 {
 	return this->image;
@@ -16,6 +17,7 @@ Tile::Tile(std::string url, CollisionBehavior colBehavior)
 Tile::Tile(int size, CollisionBehavior colBehavior,Uint8 r,Uint8 g,Uint8 b,Uint8 a)
 {
 	this->image = new Rect(0,0,size,size,r,g,b,a);
+	this->image->setBlendMode(SDL_BLENDMODE_NONE);
 	this->collisionBehavior = colBehavior;
 }
 
@@ -26,7 +28,11 @@ Tile::~Tile()
 
 std::string Tile::toString()
 {
-	return "";
+	
+	std::stringstream stringStream;
+	const void* address = static_cast<const void*>(this);
+	stringStream << "Tile::=" << address << ";ElementAddress:=" << static_cast<const void*>(this->image)<< "::\n";
+	return stringStream.str();
 }
 
 ObjectID::ObjectID(int id, std::string info)
@@ -63,9 +69,9 @@ Tilemap::Tilemap(int width, int height,int tilesize)
 	this->surface->setAutoRender(false);
 	this->surface->forceClearTexture();
 	surface->forceRenderTexture();
-	tiles.push_back(Tile(32, Tile::CollisionBehavior::Boundry, 0, 0, 255, 126));
+	tiles.push_back(new Tile(16,Tile::CollisionBehavior::Boundry,125,125,255,125));
 	//debug = Tile(tilesize,(Tile::CollisionBehavior)0, 255, 0, 255, 126);
-	
+	std::cout << "Tileset #"<<tiles.size();
 }
 
 void Tilemap::setMap(int newMap[])
@@ -97,32 +103,32 @@ void Tilemap::setPartialMap(int newMap[], int destinationX, int destinationY, in
 void Tilemap::renderMap() {
 	int x;
 	int y;
+	surface->forceClearTexture();
 	for (y = 0; y < height; y++) {
 		for (x = 0; x < width; x++) {
 			renderTile(x, y, tileMap.at(coordToIndex(x, y)).tile);
 		}
 	}
-
 }
 
 void Tilemap::renderTile(int x, int y, int tileID) {
-	Tile * tileToRender = this->getTile(tileID);
-	Element * toRender = tileToRender->getImage();
-	toRender->moveTo(x*tilesize, y*tilesize);
-	surface->renderElement(toRender);
-	toRender->moveTo(0, 0);
+	Element * tileToRender = this->getTileImage(tileID);
+	tileToRender->moveTo(x*tilesize, y*tilesize);
+	surface->renderElement(tileToRender);
+	tileToRender->moveTo(0, 0);
 }
 
-Tile * Tilemap::getTile(int index) {
+
+
+Element * Tilemap::getTileImage(int index) {
 	if (index < 0 || index >= this->tiles.size()) {
-		return &(this->debug);
+		return (debug.getImage());
 	}
 	else {
-		return &(tiles.at(index));
+		return (tiles[0]->getImage());
 	}
-
+	return (debug.getImage());
 }
-
 void Tilemap::setTile(int x, int y, int tileID) {
 	setTile(x, y, tileID, "");
 }

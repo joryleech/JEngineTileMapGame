@@ -136,11 +136,7 @@ void renderingThreadingTest1() {
 
 	delete(engine);
 }
-void print2darray(int arr[]) {
-	for (int i = 0; i < 4; i++) {
-		std::cout << (arr[i]) << "\n";
-	}
-}
+
 void tilingTest1() {
 	JEngine * engine = new JEngine();
 	engine->init("Image Example", 1920, 1080, 60);
@@ -150,13 +146,13 @@ void tilingTest1() {
 	Image * image2 = new Image("Resources/Images/ImageExample1.png", 200, 200);
 	int x[] =
 	{
-		1,1,1,4,
-		2,2,2,4,
-		3,3,3,4,
-		4,4,4,4
+		-1,-1,0,0,
+		-1,-1,0,0,
+		-1,-1,0,0,
+		-1,-1,0,0
+
 	};
 
-	print2darray(x);
 	tile->setPartialMap(x,0,0,4,4);
 	tile->setPartialMap(x, 10, 0, 4, 4);
 	std::cout << "Starting Game Loop \n";
@@ -164,10 +160,10 @@ void tilingTest1() {
 
 
 
+	engine->addElement(image2);
 
 	engine->addElement(tile->getSurface());
 
-	engine->addElement(image2);
 	while (!engine->getQuit()) {
  		engine->refreshScreen();
 		image2->moveTo(engine->getJInput()->getMouseXPos(), 100);

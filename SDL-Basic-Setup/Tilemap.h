@@ -1,3 +1,4 @@
+#pragma once
 #include "JEngine.h"
 #include <string>
 #include <list>
@@ -22,6 +23,7 @@ public:
 	Tile(std::string url, CollisionBehavior colBehavior);
 	Tile(int size, CollisionBehavior colBehavior, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 	~Tile();
+	int debug = 100;
 	std::string toString();
 };
 
@@ -41,7 +43,7 @@ public:
 	int height, width;
 	Tile debug;
 	Tile clear;
-	std::vector<Tile> tiles;
+	std::vector<Tile*> tiles;
 private:
 	int tilesize;
 	std::vector<ObjectID> tileMap;
@@ -54,7 +56,7 @@ public:
 	~Tilemap();
 	void renderMap();
 	void renderTile(int x, int y, int tileID);
-	Tile * getTile(int index);
+	Element * getTileImage(int index);
 	void setTile(int x, int y, int id);
 	void setTile(int x, int y, int id, std::string info);
 	std::string toString(bool);
