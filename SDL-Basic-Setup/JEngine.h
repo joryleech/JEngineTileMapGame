@@ -2,6 +2,7 @@
 #define JEngine_H
 #include <list>
 #include <SDL.h>
+
 #include <string>
 
 
@@ -70,8 +71,12 @@ private:
 };
 class Text : public Element
 {
+public:
 	Text(std::string text, float x, float y);
-
+private:
+	std::string text;
+	Color color;
+	SDL_Texture* texture;
 };
 class Image: public Element
 {

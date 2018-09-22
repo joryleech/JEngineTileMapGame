@@ -331,7 +331,6 @@ Element * JRenderer::addElement(Element * e)
 
 void JRenderer::renderElement(Element * e)
 {
-	windowAndRenderer->debugPrint("Element Rendered");
 	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->renderTexture);
 	SDL_SetTextureBlendMode(this->renderTexture, (e)->getBlendMode());
 

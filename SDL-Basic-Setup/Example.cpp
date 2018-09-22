@@ -156,9 +156,6 @@ void tilingTest1() {
 	tile->setPartialMap(x,0,0,4,4);
 	tile->setPartialMap(x, 10, 0, 4, 4);
 	std::cout << "Starting Game Loop \n";
-	std::cout << tile->toString(false);
-
-
 
 	engine->addElement(image2);
 
@@ -166,7 +163,6 @@ void tilingTest1() {
 	tile->setTile(3, 0, -1);
 	tile->setTile(3, 0, 0);
 	tile->clearTile(0, 0);
-	std::cout << tile->toString(false);
 	while (!engine->getQuit()) {
  		engine->refreshScreen();
 		image2->moveTo(engine->getJInput()->getMouseXPos()-50, engine->getJInput()->getMouseYPos()-50);
