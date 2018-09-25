@@ -20,8 +20,6 @@ void GameController::update()
 
 GameState * GameController::changeState(GameState * newState)
 {
-	GameState * oldState = this->currentState;
-	currentState = newState;
 	currentState->onStart();
 
 	this->engine->getImageManager()->removeElement(oldState->getScreen());
@@ -33,4 +31,9 @@ GameState * GameController::changeState(GameState * newState)
 JRenderer * GameState::getScreen()
 {
 	return this->screen;
+}
+
+void GameState::createScreen(int width, int height)
+{
+	this->screen = new JRenderer(0, 0, width, height);
 }

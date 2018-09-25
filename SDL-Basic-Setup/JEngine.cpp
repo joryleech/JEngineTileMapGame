@@ -628,6 +628,14 @@ bool JEngine::getQuit()
 {
 	return this->windowShutDown;
 }
+int JEngine::getWidth()
+{
+	return this->width;
+}
+int JEngine::getHeight()
+{
+	return this->height;
+}
 void JEngine::debugPrint(std::string print)
 {
 	if (debug) {

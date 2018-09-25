@@ -190,7 +190,7 @@ class JEngine
 {
 public: 
 	~JEngine();
-	int init(std::string title, int widht,int height, int maxFrameRate);
+	int init(std::string title, int width,int height, int maxFrameRate);
 	void setInputFrameIndependant(bool x);
 	int init();
 	void refreshScreen();
@@ -206,7 +206,7 @@ public:
 	JInput* getJInput();
 	bool getQuit();
 	bool windowShutDown = false;
-
+	int getWidth(); int getHeight();
 	void debugPrint(std::string);
 private:
 
