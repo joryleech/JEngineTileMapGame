@@ -449,6 +449,12 @@ void ImageManager::removeAndDeleteAllElements()
 		this->ImageList->pop_front();
 	}
 }
+void ImageManager::removeAllElements()
+{
+	while (!this->ImageList->empty()) {
+		this->ImageList->pop_front();
+	}
+}
 void ImageManager::pushElementBack(Element * r)
 {
 	this->ImageList->push_back(r);

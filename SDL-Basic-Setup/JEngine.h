@@ -125,6 +125,7 @@ public:
 	void removeElement(Element* r);
 	void removeAndDeleteElement(Element* r);
 	void removeAndDeleteAllElements();
+	void removeAllElements();
 	void pushElementBack(Element* r);
 	int pushToBack(Element* r);
 	int pullToFront(Element* r);

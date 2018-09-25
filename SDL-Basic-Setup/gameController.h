@@ -29,12 +29,20 @@ protected:
 
 class GameController {
 	std::list<GameState> gameStateStack;
-	GameController(JEngine * engine);
+	GameController(JEngine * engine,GameState* defaultState);
+	GameController(JEngine * engine) : GameController(engine, nullptr) {};
 	void update();
 	~GameController();
 	JEngine * engine;
-	GameState * changeState(GameState * newState);
+	
+	GameState * popState();
+	GameState * replaceState(GameState * newState);
+	void pushState(GameState * newState);
+	void deleteState(GameState * state);
+	GameState * getCurrentState();
 private:
+	GameState * changeState(GameState * newState);
+
 	GameState * defaultState;
 };
 #endif
