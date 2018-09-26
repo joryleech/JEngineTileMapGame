@@ -67,6 +67,12 @@ GameController::GameState * GameController::getCurrentState() {
 	return gameStateStack.back();
 }
 
+GameController::GameState::GameState(GameController * parent)
+{
+	this->parent = parent;
+
+}
+
 JRenderer * GameController::GameState::getScreen()
 {
 	return this->screen;

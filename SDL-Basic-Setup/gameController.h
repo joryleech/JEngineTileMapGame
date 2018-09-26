@@ -4,9 +4,6 @@
 #include "JEngine.h"
 #include <list>
 
-static int engineScreenWidth=1920;
-static int engineScreenHeight=1080;
-
 
 class GameController {
 public:
@@ -19,7 +16,7 @@ public:
 
 		stateModificaction modifyState = None;
 		GameState * stateModificactionpointer = NULL;
-		GameState();
+		GameState(GameController * parent);
 		virtual void update() {};
 		virtual void onStart() {};
 		virtual void onExit() {};
