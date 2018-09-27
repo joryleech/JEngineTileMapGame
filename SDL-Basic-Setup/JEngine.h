@@ -150,8 +150,8 @@ public:
 	void forceRenderTexture();
 	void setWidth(int x); void setHeight(int y);
 	void setAutoRender(bool);
+	SDL_Texture * getTexture();
 private:
-	
 	bool autoRender = true;
 	int width;
 	int height;
@@ -213,9 +213,10 @@ private:
 
 	bool debug=true;
 	int maxFrameRate;
-	ImageManager* imageManager;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
+	JRenderer* renderSurface;
+	int resolutionWidth, resolutionHeight;
 	int width, height;
 	std::string windowTitle;
 	Uint32 lastUpdate;

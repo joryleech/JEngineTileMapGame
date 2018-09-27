@@ -323,6 +323,12 @@ ImageManager * JRenderer::getImageManager()
 {
 	return this->imageManager;
 }
+ImageManager * JRenderer::setImageManager(ImageManager * i)
+{
+	ImageManager * oldManager = this->getImageManager();
+	this->imageManager = i;
+	return oldManager;
+}
 Element * JRenderer::addElement(Element * e)
 {
 	this->getImageManager()->addElement(e);
@@ -360,6 +366,8 @@ void JRenderer::forceRenderTexture() {
 	}
 }
 void JRenderer::render() {
+	SDL_Texture * parentTexture = SDL_GetRenderTarget(windowAndRenderer->getRenderer());
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->getTexture());
 	if (this->wasSizeChanged) {
 		this->createRenderTexture();
 		wasSizeChanged = false;
@@ -367,8 +375,10 @@ void JRenderer::render() {
 	if (autoRender) {
 		this->forceRenderTexture();
 	}
-	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL);
+
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), parentTexture);
 	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*scale), ((int) this->height*scale) };
+
 	SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->renderTexture, NULL, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 }
 void JRenderer::forceClearTexture()
@@ -380,13 +390,14 @@ void JRenderer::forceClearTexture()
 }
 SDL_Texture * JRenderer::createRenderTexture()
 {
-	if (this->renderTexture != nullptr) {
+	if (this->renderTexture != NULL) {
 		SDL_DestroyTexture(this->renderTexture);
 		this->renderTexture = nullptr;
 	}
 	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0, 0, 0, 0);
 	this->renderTexture=SDL_CreateTexture(windowAndRenderer->getRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, this->width, this->height);
-	if (this->renderTexture == nullptr) {
+	std::cout<<"SDL_Init failed: %s\n" << SDL_GetError();
+	if (this->renderTexture == NULL) {
 		std::cout << "Unable to create renderer texture";
 	}
 	return this->renderTexture;
@@ -406,6 +417,11 @@ void JRenderer::setHeight(int y)
 void JRenderer::setAutoRender(bool t)
 {
 	this->autoRender = t;
+}
+
+SDL_Texture * JRenderer::getTexture()
+{
+	return this->renderTexture;
 }
 
 
@@ -477,9 +493,9 @@ JEngine::~JEngine()
 {
 	//Todo Check this deletes everything.
 
-	if (this->imageManager != nullptr) {
-		delete(imageManager);
-		imageManager = nullptr;
+	if (this->renderSurface != nullptr) {
+		delete(renderSurface);
+		renderSurface = nullptr;
 	}
 	delete(jInput);
 	SDL_DestroyWindow(this->window);
@@ -503,9 +519,8 @@ int JEngine::init(std::string title, int width, int height, int maxFrameRate) {
 	if (windowAndRenderer == NULL) {
 		SDL_ShowCursor(SDL_ENABLE);
 		windowAndRenderer = this;
-		this->width = width;this->height = height; this->windowTitle = title; this->setMaxFrameRate(maxFrameRate);
+		this->width = width; this->height = height; this->windowTitle = title; this->setMaxFrameRate(maxFrameRate); resolutionWidth = width; resolutionHeight = height;
 		this->window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, this->width, this->height, SDL_WINDOW_SHOWN);
-		this->imageManager = new ImageManager();
 		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest"))
 		{
 			printf("Warning: Linear texture filtering not enabled!");
@@ -524,6 +539,9 @@ int JEngine::init(std::string title, int width, int height, int maxFrameRate) {
 		this->jInput = new JInput();
 		this->frameIndependantInput = false;
 	}
+	    
+	renderSurface = new JRenderer(0,0,resolutionWidth,resolutionHeight);
+	this->debugPrint("Creating Default Texture Renderer\n");
 	return 0;
 }
 void JEngine::refreshScreen()
@@ -583,20 +601,10 @@ void JEngine::paint() {
 
 	SDL_RenderClear(renderer);
 
-	//this->imageManager->getListPointer()->begin();
-	std::list<Element*>::iterator it;
-	std::list<Element*>::iterator itEnd = imageManager->getListPointer()->end();
-	for (it = this->imageManager->getListPointer()->begin();
-		it != itEnd;
-		++it)
-	{
-		if (!(*it)->isHidden()) {
-			SDL_SetRenderDrawBlendMode(this->renderer, (*it)->getBlendMode());
-			(*it)->render();
-		}
-	}
+	renderSurface->setScale(resolutionWidth / width);
+	SDL_SetRenderDrawBlendMode(this->renderer, renderSurface->getBlendMode());
+	renderSurface->render();
 	
-
 	SDL_RenderPresent(this->renderer);
 	timeLastPainted = SDL_GetTicks();
 
@@ -610,12 +618,12 @@ SDL_Window* JEngine::getWindow()
 	return this->window;
 }
 ImageManager* JEngine::getImageManager() {
-	return imageManager;
+	return this->renderSurface->getImageManager();
 }
-ImageManager* JEngine::setImageManager(ImageManager* i) {
-	ImageManager* x = this->getImageManager();
-	this->imageManager = i;
-	return x;
+ImageManager* JEngine::setImageManager(ImageManager* newImageManager) {
+	ImageManager* oldImageManager = this->getImageManager();
+	this->renderSurface->setImageManager(newImageManager);
+	return oldImageManager;
 }
 Element * JEngine::addElement(Element * e)
 {
