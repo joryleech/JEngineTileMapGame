@@ -588,7 +588,7 @@ void JEngine::paint() {
 
 	SDL_RenderClear(renderer);
 
-	renderSurface->setScale(resolutionWidth / width);
+	this->renderSurface->setScale(this->getScreenScaleX(), this->getScreenScaleY());
 	SDL_SetRenderDrawBlendMode(this->renderer, renderSurface->getBlendMode());
 	renderSurface->render();
 	
@@ -633,6 +633,11 @@ bool JEngine::getQuit()
 {
 	return this->windowShutDown;
 }
+void JEngine::quit()
+{
+	//TODO: Complete window destruction
+	this->windowShutDown = true;
+}
 int JEngine::getWidth()
 {
 	return this->width;
@@ -662,12 +667,11 @@ SDL_Renderer* JEngine::getRenderer()
 	return this->renderer;
 }
 void JEngine::setWindowFullScreen() {
-	int w, h;
+	this->debugPrint("Engine Starting Fullscreen");
 	SDL_SetWindowFullscreen(this->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-	SDL_GetRendererOutputSize(renderer, &w, &h);
-	width = w;
-	height = h;
-	//this->renderSurface->setScale(this->getScreenScaleX(), this->getScreenScaleY());
+	SDL_GetWindowSize(this->window, &width, &height);
+	float x = this->getScreenScaleY();
+	debugPrint(""+std::to_string(x));
 }
 
 int JEngine::setMaxFrameRate(int x)
@@ -723,10 +727,10 @@ int JInput::getMouseYPosRaw() {
 	return y;
 }
 int JInput::getMouseXPos() {
-	return getMouseXPosRaw()*windowAndRenderer->getScreenScaleX();
+	return getMouseXPosRaw()/windowAndRenderer->getScreenScaleX();
 }
 int JInput::getMouseYPos() {
-	return getMouseYPosRaw()*windowAndRenderer->getScreenScaleY();
+	return getMouseYPosRaw()/windowAndRenderer->getScreenScaleY();
 }
 
 

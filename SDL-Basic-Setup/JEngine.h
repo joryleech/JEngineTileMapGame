@@ -214,6 +214,7 @@ public:
 	Uint32 getTimeStep();
 	JInput* getJInput();
 	bool getQuit();
+	void quit();
 	bool windowShutDown = false;
 	int getWidth(); int getHeight();
 	void debugPrint(std::string);

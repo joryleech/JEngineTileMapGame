@@ -140,7 +140,7 @@ void renderingThreadingTest1() {
 void tilingTest1() {
 	JEngine * engine = new JEngine();
 	engine->init("Image Example", 1920, 1080, 144);
-	//engine->setWindowFullScreen();
+
 	//engine->setMaxFrameRate(60);
 	Tilemap* tile;
 	tile = new Tilemap(4,4,32);
@@ -169,6 +169,12 @@ void tilingTest1() {
 		}
 		if (engine->getJInput()->isKeyDown(SDL_SCANCODE_F2)) {
 			printf("%f\n", engine->getDeltaTime());
+		}
+		if (engine->getJInput()->isKeyDown(SDL_SCANCODE_F)) {
+			engine->setWindowFullScreen();
+		}
+		if (engine->getJInput()->isKeyDown(SDL_SCANCODE_ESCAPE)) {
+			engine->quit();
 		}
  		engine->refreshScreen();
 		image2->moveTo(engine->getJInput()->getMouseXPos()-50, engine->getJInput()->getMouseYPos()-50);
