@@ -33,7 +33,7 @@ void createMap(JRenderer* map) {
 int testCode(){
 	JEngine* j;
 	j = new JEngine();
-	j->setInputFrameIndependant(false);
+
 	j->init("Window", 640, 480, 60);
 	j->setMaxFrameRate(-1);
 	j->addElement(new Rect(0, 0, 640, 480, 0, 145, 0, 255));

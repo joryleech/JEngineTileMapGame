@@ -24,7 +24,11 @@ public:
 	~Element() {};
 	bool hidden = false;
 
-	virtual double getX();	double getY();	virtual void setX(double);	void setY(double); void hide(); void show(); bool isHidden(); virtual double getScale(); virtual void setScale(double scale);
+	virtual double getX();	double getY();	virtual void setX(double);	void setY(double); void hide(); void show(); bool isHidden(); virtual double getScale();
+	double getScaleX();
+	double getScaleY();
+	virtual void setScale(double scale);
+	void setScale(double scaleX, double scaleY);
 	virtual void render() {};
 	void moveBy(double x, double y);
 	void moveTo(double x, double y);
@@ -41,7 +45,7 @@ protected:
 	SDL_BlendMode blendmode = SDL_BLENDMODE_BLEND;
 	double x;
 	double y;
-	double scale=1;
+	double scaleX = 1, scaleY = 1;
 	SDL_RendererFlip flipHoriz;
 	SDL_RendererFlip flipVert;
 	double angle;
@@ -150,8 +154,8 @@ public:
 	void forceRenderTexture();
 	void setWidth(int x); void setHeight(int y);
 	void setAutoRender(bool);
+	SDL_Texture * getTexture();
 private:
-	
 	bool autoRender = true;
 	int width;
 	int height;
@@ -167,8 +171,11 @@ public:
 	JInput();
 	~JInput();
 	void update();
+	int getMouseXPosRaw();
+	int getMouseYPosRaw();
 	bool wasMouseClicked();
 	bool wasMouseReleased();
+
 	int getMouseXPos();
 	int getMouseYPos();
 	bool isKeyDown(int i);
@@ -192,11 +199,12 @@ class JEngine
 public: 
 	~JEngine();
 	int init(std::string title, int width,int height, int maxFrameRate);
-	void setInputFrameIndependant(bool x);
+
 	int init();
 	void refreshScreen();
 	SDL_Renderer* getRenderer();
 	void paint();
+	float getDeltaTime();
 	SDL_Window* getWindow();
 	void setWindowFullScreen();
 	int setMaxFrameRate(int x);
@@ -206,16 +214,21 @@ public:
 	Uint32 getTimeStep();
 	JInput* getJInput();
 	bool getQuit();
+	void quit();
 	bool windowShutDown = false;
 	int getWidth(); int getHeight();
 	void debugPrint(std::string);
+	float getScreenScaleX();
+	float getScreenScaleY();
 private:
+
 
 	bool debug=true;
 	int maxFrameRate;
-	ImageManager* imageManager;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
+	JRenderer* renderSurface;
+	int resolutionWidth, resolutionHeight;
 	int width, height;
 	std::string windowTitle;
 	Uint32 lastUpdate;
@@ -224,7 +237,7 @@ private:
 	Uint64 totalFrames;
 	JInput* jInput;
 	Uint32 timeLastPainted;
-	bool frameIndependantInput;
+
 
 
 };

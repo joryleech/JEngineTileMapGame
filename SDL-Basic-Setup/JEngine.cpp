@@ -68,16 +68,26 @@ bool Element::isHidden() {
 }
 void Element::setScale(double scale)
 {
-	this->scale = scale;
+	this->setScale(scale,scale);
+}
+void Element::setScale(double scaleX, double scaleY) {
+	this->scaleX = scaleX;
+	this->scaleY = scaleY;
 }
 double Element::getScale()
 {
-	return this->scale;
+	return this->scaleX;
+}
+double Element::getScaleX() {
+	return this->scaleX;
+}
+double Element::getScaleY() {
+	return this->scaleY;
 }
 void Element::moveBy(double x2, double y2)
 {
-	this->x += (x2*windowAndRenderer->getTimeStep() / 1000.f);
-	this->y += (y2*windowAndRenderer->getTimeStep() / 1000.f);
+	this->x += (x2);
+	this->y += (y2);
 }
 void Element::moveTo(double x2, double y2)
 {
@@ -87,7 +97,7 @@ void Element::moveTo(double x2, double y2)
 
 void Element::rotateBy(double a)
 {
-	this->angle += (a*windowAndRenderer->getTimeStep() / 1000.f);
+	this->angle += a;
 	if (angle > 360) {
 		angle -= 360;
 	}
@@ -153,7 +163,7 @@ Image::Image(std::string url, int x, int y) {
 	this->x = x;
 	this->y = y;
 	this->setImage(url);
-	scale = 1;
+	this->setScale(1);
 	iX = 0;iY = 0;blitWidth = 0;blitHeight = 0;
 }
 Image::Image(Image* img, int x, int y) {
@@ -162,22 +172,22 @@ Image::Image(Image* img, int x, int y) {
 	
 	std::cout << "imgPointed:" << img->image << "\n";
 	this->setImage(img);
-	scale = 1;
+	this->setScale(1);
 	iX = 0;iY = 0;blitWidth = 0;blitHeight = 0;
 }
 double Image::getWidth()
 {
 	if (blitWidth==0) {
-		return imgwidth*scale;
+		return imgwidth*scaleX;
 	}
-	else { return blitWidth*scale; }
+	else { return blitWidth*scaleX; }
 }
 double Image::getHeight()
 {
 	if (blitHeight==0) {
-		return imgheight*scale;
+		return imgheight*scaleY;
 	}
-	else { return blitHeight*scale; }
+	else { return blitHeight*scaleY; }
 }
 bool Image::isColliding(Image* e2)
 {
@@ -245,12 +255,12 @@ void Image::render()
 	if (this->image == NULL) {
 	}
 	else if (iX == 0 && iY == 0 && blitWidth == 0 && blitHeight == 0) {
-		SDL_Rect dest = { std::round(this->x),std::round(this->y), this->imgwidth*scale, this->imgheight*scale };
+		SDL_Rect dest = { std::round(this->x),std::round(this->y), this->imgwidth*this->getScaleX(), this->imgheight*this->getScaleY() };
 		SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->image, NULL, &dest,this->angle,NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 	}
 	else {
 		SDL_Rect blit = { iX,iY,blitWidth,blitHeight };
-		SDL_Rect dest = { (int)std::round(this->x) ,(int)std::round(this->y), this->blitWidth*scale, this->blitHeight*scale };
+		SDL_Rect dest = { (int)std::round(this->x) ,(int)std::round(this->y), this->blitWidth*this->getScaleX(), this->blitHeight*this->getScaleY() };
 		SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->image, &blit, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 	}
 }
@@ -275,7 +285,7 @@ Rect::Rect(double x2, double y2, float width2, float height2) {
 }
 void Rect::render()
 {
-	rect = { (int)std::round(this->x),(int)std::round(this->y),(int)std::round(this->width*((int)scale)),(int)std::round(this->height*((int)scale)) };
+	rect = { (int)std::round(this->x),(int)std::round(this->y),(int)std::round(this->width*this->getScaleX()),(int)std::round(this->height*this->getScaleY()) };
 
 	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), color.r, color.g, color.b, color.a);
 	SDL_RenderFillRect(windowAndRenderer->getRenderer(), &rect);
@@ -323,6 +333,12 @@ ImageManager * JRenderer::getImageManager()
 {
 	return this->imageManager;
 }
+ImageManager * JRenderer::setImageManager(ImageManager * i)
+{
+	ImageManager * oldManager = this->getImageManager();
+	this->imageManager = i;
+	return oldManager;
+}
 Element * JRenderer::addElement(Element * e)
 {
 	this->getImageManager()->addElement(e);
@@ -360,6 +376,8 @@ void JRenderer::forceRenderTexture() {
 	}
 }
 void JRenderer::render() {
+	SDL_Texture * parentTexture = SDL_GetRenderTarget(windowAndRenderer->getRenderer());
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->getTexture());
 	if (this->wasSizeChanged) {
 		this->createRenderTexture();
 		wasSizeChanged = false;
@@ -367,8 +385,10 @@ void JRenderer::render() {
 	if (autoRender) {
 		this->forceRenderTexture();
 	}
-	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), NULL);
-	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*scale), ((int) this->height*scale) };
+
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), parentTexture);
+	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*this->getScaleX()), ((int)this->height*this->getScaleY()) };
+
 	SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->renderTexture, NULL, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 }
 void JRenderer::forceClearTexture()
@@ -380,13 +400,14 @@ void JRenderer::forceClearTexture()
 }
 SDL_Texture * JRenderer::createRenderTexture()
 {
-	if (this->renderTexture != nullptr) {
+	if (this->renderTexture != NULL) {
 		SDL_DestroyTexture(this->renderTexture);
 		this->renderTexture = nullptr;
 	}
 	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0, 0, 0, 0);
 	this->renderTexture=SDL_CreateTexture(windowAndRenderer->getRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, this->width, this->height);
-	if (this->renderTexture == nullptr) {
+	std::cout<<"SDL_Init failed: %s\n" << SDL_GetError();
+	if (this->renderTexture == NULL) {
 		std::cout << "Unable to create renderer texture";
 	}
 	return this->renderTexture;
@@ -406,6 +427,11 @@ void JRenderer::setHeight(int y)
 void JRenderer::setAutoRender(bool t)
 {
 	this->autoRender = t;
+}
+
+SDL_Texture * JRenderer::getTexture()
+{
+	return this->renderTexture;
 }
 
 
@@ -477,9 +503,9 @@ JEngine::~JEngine()
 {
 	//Todo Check this deletes everything.
 
-	if (this->imageManager != nullptr) {
-		delete(imageManager);
-		imageManager = nullptr;
+	if (this->renderSurface != nullptr) {
+		delete(renderSurface);
+		renderSurface = nullptr;
 	}
 	delete(jInput);
 	SDL_DestroyWindow(this->window);
@@ -503,9 +529,8 @@ int JEngine::init(std::string title, int width, int height, int maxFrameRate) {
 	if (windowAndRenderer == NULL) {
 		SDL_ShowCursor(SDL_ENABLE);
 		windowAndRenderer = this;
-		this->width = width;this->height = height; this->windowTitle = title; this->setMaxFrameRate(maxFrameRate);
+		this->width = width; this->height = height; this->windowTitle = title; this->setMaxFrameRate(maxFrameRate); resolutionWidth = width; resolutionHeight = height;
 		this->window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, this->width, this->height, SDL_WINDOW_SHOWN);
-		this->imageManager = new ImageManager();
 		if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest"))
 		{
 			printf("Warning: Linear texture filtering not enabled!");
@@ -522,8 +547,11 @@ int JEngine::init(std::string title, int width, int height, int maxFrameRate) {
 		SDL_SetRenderDrawColor(this->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 		lastUpdate = SDL_GetTicks();
 		this->jInput = new JInput();
-		this->frameIndependantInput = false;
+
 	}
+	    
+	renderSurface = new JRenderer(0,0,resolutionWidth,resolutionHeight);
+	this->debugPrint("Creating Default Texture Renderer\n");
 	return 0;
 }
 void JEngine::refreshScreen()
@@ -534,69 +562,36 @@ void JEngine::refreshScreen()
 	}
 
 }
-void JEngine::setInputFrameIndependant(bool x)
-{
-	frameIndependantInput = x;
-}
+
 void JEngine::paint() {
 
 	Uint32 currentTicks = SDL_GetTicks();
 	Uint32 oTimeStep;
-	bool return2 = false;
-	if (frameIndependantInput) {
-	//This version should not be default.
-	//This works by returning to the game loop instead of rendering if the frame rate sleep is not met
-	//More resource intensive. 
-	//Doesn't appear to make a difference.
-		if (this->maxFrameRate > 0) {
-			Uint32 timeSincePaint = currentTicks - timeLastPainted;
-			if (timeSincePaint < this->timeBetweenFrames) {
-				SDL_Delay(1);
-				return2 = true;//SDL_Delay(timeBetweenFrames - (oTimeStep));
-			}
 
-		}
-		timeStep = SDL_GetTicks() - lastUpdate;
-		if (timeStep < 1) {
-			SDL_Delay(1);
-			timeStep = 1;
-		}
-		lastUpdate = SDL_GetTicks();
 
-		if (return2) { return; }
-	}
-	else {
-		//a negative framerate indicates no max frame rate.
-		if (this->maxFrameRate >= 0) {
-			oTimeStep = currentTicks - lastUpdate;
-			if (oTimeStep < this->timeBetweenFrames) {
-				SDL_Delay(timeBetweenFrames - (oTimeStep));
-			}
+
+	//a negative framerate indicates no max frame rate.
+	if (this->maxFrameRate >= 0) {
+		oTimeStep = currentTicks - lastUpdate;
+		if (oTimeStep < this->timeBetweenFrames) {
+			SDL_Delay(timeBetweenFrames - (oTimeStep));
 		}
-		timeStep = SDL_GetTicks() - lastUpdate;
-		if (timeStep < 1) {
-			SDL_Delay(1);
-			timeStep = 1;
-		}
-		lastUpdate = currentTicks;
 	}
+	timeStep = SDL_GetTicks() - lastUpdate;
+	if (timeStep < 1) {
+		SDL_Delay(1);
+		timeStep = 1;
+	}
+
+	lastUpdate = currentTicks;
+
 
 	SDL_RenderClear(renderer);
 
-	//this->imageManager->getListPointer()->begin();
-	std::list<Element*>::iterator it;
-	std::list<Element*>::iterator itEnd = imageManager->getListPointer()->end();
-	for (it = this->imageManager->getListPointer()->begin();
-		it != itEnd;
-		++it)
-	{
-		if (!(*it)->isHidden()) {
-			SDL_SetRenderDrawBlendMode(this->renderer, (*it)->getBlendMode());
-			(*it)->render();
-		}
-	}
+	this->renderSurface->setScale(this->getScreenScaleX(), this->getScreenScaleY());
+	SDL_SetRenderDrawBlendMode(this->renderer, renderSurface->getBlendMode());
+	renderSurface->render();
 	
-
 	SDL_RenderPresent(this->renderer);
 	timeLastPainted = SDL_GetTicks();
 
@@ -605,17 +600,21 @@ void JEngine::paint() {
 
 
 }
+float JEngine::getDeltaTime() {
+	return (this->timeStep/1000.0f);
+
+}
 SDL_Window* JEngine::getWindow()
 {
 	return this->window;
 }
 ImageManager* JEngine::getImageManager() {
-	return imageManager;
+	return this->renderSurface->getImageManager();
 }
-ImageManager* JEngine::setImageManager(ImageManager* i) {
-	ImageManager* x = this->getImageManager();
-	this->imageManager = i;
-	return x;
+ImageManager* JEngine::setImageManager(ImageManager* newImageManager) {
+	ImageManager* oldImageManager = this->getImageManager();
+	this->renderSurface->setImageManager(newImageManager);
+	return oldImageManager;
 }
 Element * JEngine::addElement(Element * e)
 {
@@ -634,6 +633,11 @@ bool JEngine::getQuit()
 {
 	return this->windowShutDown;
 }
+void JEngine::quit()
+{
+	//TODO: Complete window destruction
+	this->windowShutDown = true;
+}
 int JEngine::getWidth()
 {
 	return this->width;
@@ -648,13 +652,26 @@ void JEngine::debugPrint(std::string print)
 		std::cout << print;
 	}
 }
+
+float JEngine::getScreenScaleX()
+{
+	return width/resolutionWidth;
+}
+float JEngine::getScreenScaleY()
+{
+	return height / resolutionHeight;
+}
+
 SDL_Renderer* JEngine::getRenderer()
 {
 	return this->renderer;
 }
 void JEngine::setWindowFullScreen() {
+	this->debugPrint("Engine Starting Fullscreen");
 	SDL_SetWindowFullscreen(this->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-
+	SDL_GetWindowSize(this->window, &width, &height);
+	float x = this->getScreenScaleY();
+	debugPrint(""+std::to_string(x));
 }
 
 int JEngine::setMaxFrameRate(int x)
@@ -699,16 +716,24 @@ void JInput::update() {
 	}
 
 }
-int JInput::getMouseXPos() {
+int JInput::getMouseXPosRaw() {
 	int x; int y;
 	SDL_GetMouseState(&x, &y);
 	return x;
 }
-int JInput::getMouseYPos() {
+int JInput::getMouseYPosRaw() {
 	int x; int y;
 	SDL_GetMouseState(&x, &y);
 	return y;
 }
+int JInput::getMouseXPos() {
+	return getMouseXPosRaw()/windowAndRenderer->getScreenScaleX();
+}
+int JInput::getMouseYPos() {
+	return getMouseYPosRaw()/windowAndRenderer->getScreenScaleY();
+}
+
+
 bool JInput::isKeyDown(int i)
 {
 	if (i < 0) {
