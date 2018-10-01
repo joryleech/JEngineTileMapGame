@@ -68,16 +68,26 @@ bool Element::isHidden() {
 }
 void Element::setScale(double scale)
 {
-	this->scale = scale;
+	this->setScale(scale,scale);
+}
+void Element::setScale(double scaleX, double scaleY) {
+	this->scaleX = scaleX;
+	this->scaleY = scaleY;
 }
 double Element::getScale()
 {
-	return this->scale;
+	return this->scaleX;
+}
+double Element::getScaleX() {
+	return this->scaleX;
+}
+double Element::getScaleY() {
+	return this->scaleY;
 }
 void Element::moveBy(double x2, double y2)
 {
-	this->x += (x2*windowAndRenderer->getTimeStep() / 1000.f);
-	this->y += (y2*windowAndRenderer->getTimeStep() / 1000.f);
+	this->x += (x2);
+	this->y += (y2);
 }
 void Element::moveTo(double x2, double y2)
 {
@@ -87,7 +97,7 @@ void Element::moveTo(double x2, double y2)
 
 void Element::rotateBy(double a)
 {
-	this->angle += (a*windowAndRenderer->getTimeStep() / 1000.f);
+	this->angle += a;
 	if (angle > 360) {
 		angle -= 360;
 	}
@@ -153,7 +163,7 @@ Image::Image(std::string url, int x, int y) {
 	this->x = x;
 	this->y = y;
 	this->setImage(url);
-	scale = 1;
+	this->setScale(1);
 	iX = 0;iY = 0;blitWidth = 0;blitHeight = 0;
 }
 Image::Image(Image* img, int x, int y) {
@@ -162,22 +172,22 @@ Image::Image(Image* img, int x, int y) {
 	
 	std::cout << "imgPointed:" << img->image << "\n";
 	this->setImage(img);
-	scale = 1;
+	this->setScale(1);
 	iX = 0;iY = 0;blitWidth = 0;blitHeight = 0;
 }
 double Image::getWidth()
 {
 	if (blitWidth==0) {
-		return imgwidth*scale;
+		return imgwidth*scaleX;
 	}
-	else { return blitWidth*scale; }
+	else { return blitWidth*scaleX; }
 }
 double Image::getHeight()
 {
 	if (blitHeight==0) {
-		return imgheight*scale;
+		return imgheight*scaleY;
 	}
-	else { return blitHeight*scale; }
+	else { return blitHeight*scaleY; }
 }
 bool Image::isColliding(Image* e2)
 {
@@ -245,12 +255,12 @@ void Image::render()
 	if (this->image == NULL) {
 	}
 	else if (iX == 0 && iY == 0 && blitWidth == 0 && blitHeight == 0) {
-		SDL_Rect dest = { std::round(this->x),std::round(this->y), this->imgwidth*scale, this->imgheight*scale };
+		SDL_Rect dest = { std::round(this->x),std::round(this->y), this->imgwidth*this->getScaleX(), this->imgheight*this->getScaleY() };
 		SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->image, NULL, &dest,this->angle,NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 	}
 	else {
 		SDL_Rect blit = { iX,iY,blitWidth,blitHeight };
-		SDL_Rect dest = { (int)std::round(this->x) ,(int)std::round(this->y), this->blitWidth*scale, this->blitHeight*scale };
+		SDL_Rect dest = { (int)std::round(this->x) ,(int)std::round(this->y), this->blitWidth*this->getScaleX(), this->blitHeight*this->getScaleY() };
 		SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->image, &blit, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 	}
 }
@@ -275,7 +285,7 @@ Rect::Rect(double x2, double y2, float width2, float height2) {
 }
 void Rect::render()
 {
-	rect = { (int)std::round(this->x),(int)std::round(this->y),(int)std::round(this->width*((int)scale)),(int)std::round(this->height*((int)scale)) };
+	rect = { (int)std::round(this->x),(int)std::round(this->y),(int)std::round(this->width*this->getScaleX()),(int)std::round(this->height*this->getScaleY()) };
 
 	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), color.r, color.g, color.b, color.a);
 	SDL_RenderFillRect(windowAndRenderer->getRenderer(), &rect);
@@ -377,7 +387,7 @@ void JRenderer::render() {
 	}
 
 	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), parentTexture);
-	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*scale), ((int) this->height*scale) };
+	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*this->getScaleX()), ((int)this->height*this->getScaleY()) };
 
 	SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->renderTexture, NULL, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 }
@@ -537,7 +547,7 @@ int JEngine::init(std::string title, int width, int height, int maxFrameRate) {
 		SDL_SetRenderDrawColor(this->renderer, 0xFF, 0xFF, 0xFF, 0xFF);
 		lastUpdate = SDL_GetTicks();
 		this->jInput = new JInput();
-		this->frameIndependantInput = false;
+
 	}
 	    
 	renderSurface = new JRenderer(0,0,resolutionWidth,resolutionHeight);
@@ -552,52 +562,29 @@ void JEngine::refreshScreen()
 	}
 
 }
-void JEngine::setInputFrameIndependant(bool x)
-{
-	frameIndependantInput = x;
-}
+
 void JEngine::paint() {
 
 	Uint32 currentTicks = SDL_GetTicks();
 	Uint32 oTimeStep;
-	bool return2 = false;
-	if (frameIndependantInput) {
-	//This version should not be default.
-	//This works by returning to the game loop instead of rendering if the frame rate sleep is not met
-	//More resource intensive. 
-	//Doesn't appear to make a difference.
-		if (this->maxFrameRate > 0) {
-			Uint32 timeSincePaint = currentTicks - timeLastPainted;
-			if (timeSincePaint < this->timeBetweenFrames) {
-				SDL_Delay(1);
-				return2 = true;//SDL_Delay(timeBetweenFrames - (oTimeStep));
-			}
 
-		}
-		timeStep = SDL_GetTicks() - lastUpdate;
-		if (timeStep < 1) {
-			SDL_Delay(1);
-			timeStep = 1;
-		}
-		lastUpdate = SDL_GetTicks();
 
-		if (return2) { return; }
-	}
-	else {
-		//a negative framerate indicates no max frame rate.
-		if (this->maxFrameRate >= 0) {
-			oTimeStep = currentTicks - lastUpdate;
-			if (oTimeStep < this->timeBetweenFrames) {
-				SDL_Delay(timeBetweenFrames - (oTimeStep));
-			}
+
+	//a negative framerate indicates no max frame rate.
+	if (this->maxFrameRate >= 0) {
+		oTimeStep = currentTicks - lastUpdate;
+		if (oTimeStep < this->timeBetweenFrames) {
+			SDL_Delay(timeBetweenFrames - (oTimeStep));
 		}
-		timeStep = SDL_GetTicks() - lastUpdate;
-		if (timeStep < 1) {
-			SDL_Delay(1);
-			timeStep = 1;
-		}
-		lastUpdate = currentTicks;
 	}
+	timeStep = SDL_GetTicks() - lastUpdate;
+	if (timeStep < 1) {
+		SDL_Delay(1);
+		timeStep = 1;
+	}
+
+	lastUpdate = currentTicks;
+
 
 	SDL_RenderClear(renderer);
 
@@ -611,6 +598,10 @@ void JEngine::paint() {
 	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0x00, 0x01, 0x10, 0xFF);
 	totalFrames++;
 
+
+}
+float JEngine::getDeltaTime() {
+	return (this->timeStep/1000.0f);
 
 }
 SDL_Window* JEngine::getWindow()
@@ -656,13 +647,27 @@ void JEngine::debugPrint(std::string print)
 		std::cout << print;
 	}
 }
+
+float JEngine::getScreenScaleX()
+{
+	return width/resolutionWidth;
+}
+float JEngine::getScreenScaleY()
+{
+	return height / resolutionHeight;
+}
+
 SDL_Renderer* JEngine::getRenderer()
 {
 	return this->renderer;
 }
 void JEngine::setWindowFullScreen() {
+	int w, h;
 	SDL_SetWindowFullscreen(this->window, SDL_WINDOW_FULLSCREEN_DESKTOP);
-
+	SDL_GetRendererOutputSize(renderer, &w, &h);
+	width = w;
+	height = h;
+	//this->renderSurface->setScale(this->getScreenScaleX(), this->getScreenScaleY());
 }
 
 int JEngine::setMaxFrameRate(int x)
@@ -707,16 +712,24 @@ void JInput::update() {
 	}
 
 }
-int JInput::getMouseXPos() {
+int JInput::getMouseXPosRaw() {
 	int x; int y;
 	SDL_GetMouseState(&x, &y);
 	return x;
 }
-int JInput::getMouseYPos() {
+int JInput::getMouseYPosRaw() {
 	int x; int y;
 	SDL_GetMouseState(&x, &y);
 	return y;
 }
+int JInput::getMouseXPos() {
+	return getMouseXPosRaw()*windowAndRenderer->getScreenScaleX();
+}
+int JInput::getMouseYPos() {
+	return getMouseYPosRaw()*windowAndRenderer->getScreenScaleY();
+}
+
+
 bool JInput::isKeyDown(int i)
 {
 	if (i < 0) {

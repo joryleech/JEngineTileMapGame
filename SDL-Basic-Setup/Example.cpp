@@ -139,10 +139,11 @@ void renderingThreadingTest1() {
 
 void tilingTest1() {
 	JEngine * engine = new JEngine();
-	engine->init("Image Example", 1920, 1080, 60);
-	engine->setMaxFrameRate(60);
+	engine->init("Image Example", 1920, 1080, 144);
+	//engine->setWindowFullScreen();
+	//engine->setMaxFrameRate(60);
 	Tilemap* tile;
-	tile = new Tilemap(20,20,32);
+	tile = new Tilemap(4,4,32);
 	Image * image2 = new Image("Resources/Images/ImageExample1.png", 200, 200);
 	int x[] =
 	{
@@ -154,16 +155,21 @@ void tilingTest1() {
 	};
 
 	tile->setPartialMap(x,0,0,4,4);
-	tile->setPartialMap(x, 10, 0, 4, 4);
-	std::cout << "Starting Game Loop \n";
 
+	std::cout << "Starting Game Loop \n";
+	
 	engine->addElement(image2);
 
 	engine->addElement(tile->getSurface());
-	tile->setTile(3, 0, -1);
-	tile->setTile(3, 0, 0);
-	tile->clearTile(0, 0);
+	
+
 	while (!engine->getQuit()) {
+		if (engine->getJInput()->isKeyDown(SDL_SCANCODE_F1)) {
+			printf("%f\n", engine->getDeltaTime());
+		}
+		if (engine->getJInput()->isKeyDown(SDL_SCANCODE_F2)) {
+			printf("%f\n", engine->getDeltaTime());
+		}
  		engine->refreshScreen();
 		image2->moveTo(engine->getJInput()->getMouseXPos()-50, engine->getJInput()->getMouseYPos()-50);
 	}
