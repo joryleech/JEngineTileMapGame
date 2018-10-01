@@ -139,23 +139,25 @@ void renderingThreadingTest1() {
 
 void tilingTest1() {
 	JEngine * engine = new JEngine();
-	engine->init("Image Example", 1920, 1080, 144);
+	engine->init("Image Example", 1920, 1080, 0);
 
 	//engine->setMaxFrameRate(60);
 	Tilemap* tile;
-	tile = new Tilemap(4,4,32);
+	tile = new Tilemap(100,200,32);
 	Image * image2 = new Image("Resources/Images/ImageExample1.png", 200, 200);
 	int x[] =
 	{
+		-1,-1,0,-1,
 		-1,-1,0,0,
 		-1,-1,0,0,
-		-1,-1,0,0,
-		-1,-1,0,0
+		-1,-1,0,-1
 
 	};
-
-	tile->setPartialMap(x,0,0,4,4);
-
+	tile->setManualRender(true);
+	for (int i = 0; i < 90; i++) {
+		tile->setPartialMap(x,i,0,4,4);
+	}
+	tile->forceRenderMap();
 	std::cout << "Starting Game Loop \n";
 	
 	engine->addElement(image2);

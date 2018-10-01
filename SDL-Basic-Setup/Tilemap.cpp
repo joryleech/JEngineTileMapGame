@@ -8,17 +8,16 @@ Element * Tile::getImage()
 }
 
 
-Tile::Tile(std::string url, CollisionBehavior colBehavior)
+Tile::Tile(std::string url)
 { 
 	this->image = new Image(url, 0, 0);
-	this->collisionBehavior = colBehavior;
+
 }
 
-Tile::Tile(int size, CollisionBehavior colBehavior,Uint8 r,Uint8 g,Uint8 b,Uint8 a)
+Tile::Tile(int size ,Uint8 r,Uint8 g,Uint8 b,Uint8 a)
 {
 	this->image = new Rect(0,0,size,size,r,g,b,a);
 	this->image->setBlendMode(SDL_BLENDMODE_BLEND);
-	this->collisionBehavior = colBehavior;
 }
 
 Tile::~Tile()
@@ -69,7 +68,7 @@ Tilemap::Tilemap(int width, int height,int tilesize)
 	this->surface->setAutoRender(false);
 	this->surface->forceClearTexture();
 	surface->forceRenderTexture();
-	tiles.push_back(new Tile(32,Tile::CollisionBehavior::Boundry,255,0,255,0));
+	tiles.push_back(new Tile(32,255,0,255,0));
 	//debug = Tile(tilesize,(Tile::CollisionBehavior)0, 255, 0, 255, 126);
 	std::cout << "Tileset #"<<tiles.size();
 }
@@ -81,7 +80,7 @@ void Tilemap::setMap(int newMap[])
 	for (y = 0; y < (int)height;y++) {
 		for (x = 0; x < (int)width;x++) {
 			int index = coordToIndex(x, y);
-			setTile(x, y, newMap[this->coordToIndex(x, y)]);
+			setTileRenderless(x, y, newMap[this->coordToIndex(x, y)]);
 		}
 	}
 	this->renderMap();
@@ -93,7 +92,7 @@ void Tilemap::setPartialMap(int newMap[], int destinationX, int destinationY, in
 			int currentX = iteratorX + destinationX;
 			int currentY = iteratorY + destinationY;
 			int currentNewIndex = iteratorX + (iteratorY*partialWidth);
-			setTile(currentX, currentY, newMap[currentNewIndex]);
+			setTileRenderless(currentX, currentY, newMap[currentNewIndex]);
 		}
 	}
 	renderMap();
@@ -101,14 +100,25 @@ void Tilemap::setPartialMap(int newMap[], int destinationX, int destinationY, in
 
 
 void Tilemap::renderMap() {
-	int x;
-	int y;
-	surface->forceClearTexture();
-	for (y = 0; y < height; y++) {
-		for (x = 0; x < width; x++) {
-			renderTile(x, y, tileMap.at(coordToIndex(x, y)).tile);
+	if (!manualRender) {
+		int x;
+		int y;
+		surface->forceClearTexture();
+		for (y = 0; y < height; y++) {
+			for (x = 0; x < width; x++) {
+				renderTile(x, y, tileMap.at(coordToIndex(x, y)).tile);
+			}
 		}
 	}
+}
+
+void Tilemap::forceRenderMap()
+{
+	bool tempManualRender = manualRender;
+	manualRender = false;
+	renderMap();
+	manualRender = tempManualRender;
+
 }
 
 void Tilemap::renderTile(int x, int y, int tileID) {
@@ -146,6 +156,14 @@ void Tilemap::setTile(int x, int y, int tileID,std::string info) {
 	clearTile(x, y);
 	renderTile(x, y, tileID);
 }
+void Tilemap::setTileRenderless(int x, int y, int tileID, std::string info) {
+	int index = coordToIndex(x, y);
+	tileMap.at(index).tile = tileID;
+	tileMap.at(index).info = info;
+}
+void Tilemap::setTileRenderless(int x, int y, int tileID) {
+	setTileRenderless(x, y, tileID, "");
+}
 std::string Tilemap::toString(bool)
 {
 	std::string toReturn = "";
@@ -168,6 +186,11 @@ std::string Tilemap::toString(bool)
 
 int Tilemap::coordToIndex(int x, int y) {
 	return ((y*this->width) + x);
+}
+
+void Tilemap::setManualRender(bool manualRenderT)
+{
+	this->manualRender = manualRenderT;
 }
 
 
