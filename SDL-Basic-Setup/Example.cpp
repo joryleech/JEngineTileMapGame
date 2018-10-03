@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include "Tilemap.h"
+#include "gameController.h"
 /********************
 *Name: ImageExample
 *Params: None
@@ -143,7 +144,7 @@ void tilingTest1() {
 
 	//engine->setMaxFrameRate(60);
 	Tilemap* tile;
-	tile = new Tilemap(100,200,32);
+	tile = new Tilemap(500,200,32);
 	Image * image2 = new Image("Resources/Images/ImageExample1.png", 200, 200);
 	int x[] =
 	{
@@ -183,6 +184,16 @@ void tilingTest1() {
 	}
 
 	delete(engine);
+}
+
+void gameStateTest1() {
+	JEngine * engine = new JEngine();
+	engine->init("GameState Test", 1920, 1080, 0);
+	GameController * gc = new GameController(engine);
+	while (!engine->getQuit()) {
+		 
+
+	}
 }
 int main(int argc, char* args[])
 {

@@ -4,19 +4,42 @@ GameController::GameController(JEngine * engine,GameController::GameState * defa
 {
 	this->defaultState = defaultState;
 	this->engine = engine;
+
 }
 
 void GameController::update()
 {
+	//Deletes State only at the beginning of updates, and only if they don't exist on the stack.
+	//Possibility to thread this.
+	std::list<GameState *>::iterator it;
+	for (it = gameStatesToDelete.begin(); it != gameStatesToDelete.end; ++it) {
+		//A safety could be implemented, that checks if the state to be deleted is in the stack.
+		//This safety would increase complexity to O(X*M)
+		//Safely may be worth it if threaded, thought race conditions could occur.
+		delete(*it);
+	}
+
+
+	if (gameStateStack.empty() && defaultState != NULL) {
+		this->pushState(defaultState);
+	}
+	else if (!gameStateStack.empty()) {
+		this->getCurrentState()->update();
+	}
 	if (!gameStateStack.empty() && defaultState!=nullptr) {
-		
+		engine->debugPrint("GameController: No State on Stack");
 	}
 	else if (defaultState != NULL) {
-		this->pushState(defaultState);
+		
 	}
 	else{
 		engine->debugPrint("GameController::GameState is set to null");
 	}
+}
+
+GameController::~GameController()
+{
+
 }
 
 GameController::GameState * GameController::popState()
@@ -55,6 +78,10 @@ void GameController::pushState(GameController::GameState * newState)
 void GameController::changeState(GameController::GameState * newState)
 {
 	//The Engine must remove the render texture of other screens, inorder to render this screen.
+	if (newState->parent = NULL) {
+		newState->parent = this;
+	}
+
 	this->engine->getImageManager()->removeAllElements();
 	this->engine->addElement(getCurrentState()->getScreen());
 

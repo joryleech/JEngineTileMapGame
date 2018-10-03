@@ -17,18 +17,20 @@ public:
 		stateModificaction modifyState = None;
 		GameState * stateModificactionpointer = NULL;
 		GameState(GameController * parent);
+		/** Abstract Functions **/
 		virtual void update() {};
 		virtual void onStart() {};
 		virtual void onExit() {};
 		virtual void load() {};
 		virtual void postLoad() {};
+
 		JRenderer * getScreen();
 		void createScreen(int width, int height);
 	protected:
 		JRenderer * screen;
 	};
 
-
+	std::list<GameState *> gameStatesToDelete;
 	std::list<GameState *> gameStateStack;
 	GameController(JEngine * engine,GameState* defaultState);
 	GameController(JEngine * engine) : GameController(engine, nullptr) {};
@@ -40,6 +42,8 @@ public:
 	std::list<GameState *> popState(int count);
 	GameState * replaceState(GameState * newState);
 	void pushState(GameState * newState);
+	void replaceAndDeleteState(GameState * newState);
+	void popAndDeleteState();
 	void deleteState(GameState * state);
 	GameState * getCurrentState();
 private:
