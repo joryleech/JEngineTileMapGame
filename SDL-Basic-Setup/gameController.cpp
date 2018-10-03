@@ -11,14 +11,18 @@ void GameController::update()
 {
 	//Deletes State only at the beginning of updates, and only if they don't exist on the stack.
 	//Possibility to thread this.
-	std::list<GameState *>::iterator it;
-	for (it = gameStatesToDelete.begin(); it != gameStatesToDelete.end; ++it) {
+	std::list<GameState *>::iterator it = gameStatesToDelete.begin();
+	while(it!=gameStatesToDelete.end()) {
 		//A safety could be implemented, that checks if the state to be deleted is in the stack.
 		//This safety would increase complexity to O(X*M)
 		//Safely may be worth it if threaded, thought race conditions could occur.
+		(*it)->onExit();
 		delete(*it);
+		it++;
 	}
-
+	if (stateChanged) {
+		this->getCurrentState()->onStart();
+	}
 
 	if (gameStateStack.empty() && defaultState != NULL) {
 		this->pushState(defaultState);
@@ -81,7 +85,7 @@ void GameController::changeState(GameController::GameState * newState)
 	if (newState->parent = NULL) {
 		newState->parent = this;
 	}
-
+	stateChanged = true;
 	this->engine->getImageManager()->removeAllElements();
 	this->engine->addElement(getCurrentState()->getScreen());
 

@@ -21,8 +21,6 @@ public:
 		virtual void update() {};
 		virtual void onStart() {};
 		virtual void onExit() {};
-		virtual void load() {};
-		virtual void postLoad() {};
 
 		JRenderer * getScreen();
 		void createScreen(int width, int height);
@@ -45,10 +43,10 @@ public:
 	void replaceAndDeleteState(GameState * newState);
 	void popAndDeleteState();
 	void deleteState(GameState * state);
-	GameState * getCurrentState();
+	bool stateChanged = false;
 private:
    void changeState(GameState * newState);
-
+   GameState * getCurrentState();
 	GameState * defaultState;
 
 };
