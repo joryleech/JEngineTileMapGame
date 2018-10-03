@@ -22,6 +22,7 @@ void GameController::update()
 	}
 	if (stateChanged) {
 		this->getCurrentState()->onStart();
+		stateChanged = false;
 	}
 
 	if (gameStateStack.empty() && defaultState != NULL) {
@@ -30,15 +31,13 @@ void GameController::update()
 	else if (!gameStateStack.empty()) {
 		this->getCurrentState()->update();
 	}
-	if (!gameStateStack.empty() && defaultState!=nullptr) {
-		engine->debugPrint("GameController: No State on Stack");
+	else {
+		engine->debugPrint("GameController::GameState is set to null\n");
 	}
-	else if (defaultState != NULL) {
-		
-	}
-	else{
-		engine->debugPrint("GameController::GameState is set to null");
-	}
+
+
+
+	this->engine->refreshScreen();
 }
 
 GameController::~GameController()
@@ -82,7 +81,7 @@ void GameController::pushState(GameController::GameState * newState)
 void GameController::changeState(GameController::GameState * newState)
 {
 	//The Engine must remove the render texture of other screens, inorder to render this screen.
-	if (newState->parent = NULL) {
+	if (newState->parent == NULL || newState->parent==nullptr) {
 		newState->parent = this;
 	}
 	stateChanged = true;
@@ -101,7 +100,7 @@ GameController::GameState * GameController::getCurrentState() {
 GameController::GameState::GameState(GameController * parent)
 {
 	this->parent = parent;
-
+	this->createScreen(parent->engine->getResolutionX(), parent->engine->getResolutionY());
 }
 
 JRenderer * GameController::GameState::getScreen()

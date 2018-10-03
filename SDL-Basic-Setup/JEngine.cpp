@@ -84,6 +84,10 @@ double Element::getScaleX() {
 double Element::getScaleY() {
 	return this->scaleY;
 }
+double Element::getAngle()
+{
+	return this->angle;
+}
 void Element::moveBy(double x2, double y2)
 {
 	this->x += (x2);
@@ -660,6 +664,16 @@ float JEngine::getScreenScaleX()
 float JEngine::getScreenScaleY()
 {
 	return height / resolutionHeight;
+}
+
+float JEngine::getResolutionX()
+{
+	return resolutionWidth;
+}
+
+float JEngine::getResolutionY()
+{
+	return resolutionHeight;
 }
 
 SDL_Renderer* JEngine::getRenderer()

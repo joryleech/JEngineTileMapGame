@@ -10,28 +10,24 @@ public:
 	class GameState {
 	public:
 		GameController * parent;
-		static enum stateModificaction {
-			None, Pop, Replace, Push, ReplaceAndDelete, PopAndDelete
-		};
-
-		stateModificaction modifyState = None;
 		GameState * stateModificactionpointer = NULL;
-		GameState(GameController * parent);
-		/** Abstract Functions **/
-		virtual void update() {};
-		virtual void onStart() {};
-		virtual void onExit() {};
-
+		explicit GameState(GameController * parent);
 		JRenderer * getScreen();
 		void createScreen(int width, int height);
 	protected:
 		JRenderer * screen;
+
+	public:
+		/** Abstract Functions **/
+		virtual void update() {};
+		virtual void onStart() {};
+		virtual void onExit() {};
 	};
 
 	std::list<GameState *> gameStatesToDelete;
 	std::list<GameState *> gameStateStack;
 	GameController(JEngine * engine,GameState* defaultState);
-	GameController(JEngine * engine) : GameController(engine, nullptr) {};
+	GameController(JEngine * engine) : GameController(engine, NULL) {};
 	void update();
 	~GameController();
 	JEngine * engine;
@@ -47,11 +43,17 @@ public:
 private:
    void changeState(GameState * newState);
    GameState * getCurrentState();
-	GameState * defaultState;
+   GameState * defaultState;
 
 };
 #endif
 
 class DefaultState : GameController::GameState {
+public:
+	DefaultState(GameController * parent) : GameState(parent) {};
+	void update();
 	void onStart();
+	void onExit();
+
+
 };

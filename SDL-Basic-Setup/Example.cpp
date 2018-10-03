@@ -10,6 +10,7 @@
 #include <string>
 #include "Tilemap.h"
 #include "gameController.h"
+#include "TilemapEditor.h"
 /********************
 *Name: ImageExample
 *Params: None
@@ -140,7 +141,7 @@ void renderingThreadingTest1() {
 
 void tilingTest1() {
 	JEngine * engine = new JEngine();
-	engine->init("Image Example", 1920, 1080, 0);
+	engine->init("Image Example", 1920, 1080, 60);
 
 	//engine->setMaxFrameRate(60);
 	Tilemap* tile;
@@ -188,18 +189,18 @@ void tilingTest1() {
 
 void gameStateTest1() {
 	JEngine * engine = new JEngine();
-	engine->init("GameState Test", 1920, 1080, 0);
+	engine->init("GameState Test", 1920, 1080, 2);
 	GameController * gc = new GameController(engine);
+	TilemapEditor * tme = new TilemapEditor(gc);
+	gc->pushState(tme);
 	while (!engine->getQuit()) {
-		 
-
+		gc->update();
 	}
 }
 int main(int argc, char* args[])
 {
-	ObjectID i = ObjectID(0,"" );
-	std::cout << std::to_string(i.tile);
 	tilingTest1();
+	//gameStateTest1();
 	return 0;
 }
 

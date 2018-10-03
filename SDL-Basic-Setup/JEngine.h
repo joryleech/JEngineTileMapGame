@@ -27,6 +27,7 @@ public:
 	virtual double getX();	double getY();	virtual void setX(double);	void setY(double); void hide(); void show(); bool isHidden(); virtual double getScale();
 	double getScaleX();
 	double getScaleY();
+	double getAngle();
 	virtual void setScale(double scale);
 	void setScale(double scaleX, double scaleY);
 	virtual void render() {};
@@ -220,6 +221,8 @@ public:
 	void debugPrint(std::string);
 	float getScreenScaleX();
 	float getScreenScaleY();
+	float getResolutionX();
+	float getResolutionY();
 private:
 
 
