@@ -292,7 +292,13 @@ void Rect::render()
 	rect = { (int)std::round(this->x),(int)std::round(this->y),(int)std::round(this->width*this->getScaleX()),(int)std::round(this->height*this->getScaleY()) };
 
 	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), color.r, color.g, color.b, color.a);
-	SDL_RenderFillRect(windowAndRenderer->getRenderer(), &rect);
+	if (this->filled) {
+		SDL_RenderFillRect(windowAndRenderer->getRenderer(), &rect);
+	}
+	else {
+		SDL_RenderDrawRect(windowAndRenderer->getRenderer(), &rect);
+	}
+	
 }
 
 float Rect::getWidth()
@@ -313,6 +319,11 @@ void Rect::setWidth(float x)
 void Rect::setHeight(float x)
 {
 	this->height = x;
+}
+
+void Rect::setFilled(bool filled)
+{
+	this->filled = filled;
 }
 
 JRenderer::JRenderer(double x, double y, int width, int height)
@@ -428,6 +439,14 @@ void JRenderer::setHeight(int y)
 	this->wasSizeChanged = true;
 }
 
+int JRenderer::getWidth()
+{
+	return this->width;
+}
+int JRenderer::getHeight()
+{
+	return this->height;
+}
 void JRenderer::setAutoRender(bool t)
 {
 	this->autoRender = t;

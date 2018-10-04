@@ -68,6 +68,7 @@ public:
 	int getHeight();
 	void setX(double); void setY(double); void setWidth(int); void setHeight(int);
 	JBoundingBox();
+	static bool isPointInBox(double x, double y, SDL_Rect rect);
 private:
 	static double absoluteValue(double);
 	static void findDifferenceForCollisions(JBoundingBox * s1, JBoundingBox * s2, double * toReturn);
@@ -111,12 +112,14 @@ public:
 	Rect(double, double, float, float);
 	Rect(double, double, float, float, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 	~Rect();
-	Color setColor(Uint8 r, Uint8 g, Uint8 b, Uint8 az);
+	Color setColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 	Color getColor();
 	void render();
 	float getWidth(); float getHeight();
 	void setWidth(float); void setHeight(float);
+	void setFilled(bool);
 private:
+	bool filled = true;
 	float width;float height;
 	Color color;
 	
@@ -154,6 +157,7 @@ public:
 	void forceClearTexture();
 	void forceRenderTexture();
 	void setWidth(int x); void setHeight(int y);
+	int getWidth(); int getHeight();
 	void setAutoRender(bool);
 	SDL_Texture * getTexture();
 private:

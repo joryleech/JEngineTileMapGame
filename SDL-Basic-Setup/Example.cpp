@@ -189,7 +189,7 @@ void tilingTest1() {
 
 void gameStateTest1() {
 	JEngine * engine = new JEngine();
-	engine->init("GameState Test", 1920, 1080, 2);
+	engine->init("GameState Test", 1920, 1080, -1);
 	GameController * gc = new GameController(engine);
 	TilemapEditor * tme = new TilemapEditor(gc);
 	gc->pushState(tme);
@@ -199,8 +199,8 @@ void gameStateTest1() {
 }
 int main(int argc, char* args[])
 {
-	tilingTest1();
-	//gameStateTest1();
+	//tilingTest1();
+	gameStateTest1();
 	return 0;
 }
 
