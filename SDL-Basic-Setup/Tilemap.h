@@ -9,17 +9,27 @@
 
 class Tile {
 public:
-private:
-	Element * image;
-//Functions
-public:
-	Element * getImage();
+	virtual Element * getImage();
 	Tile() : Tile("Resources/Images/debug.png") {};
 	Tile(std::string url);
 	Tile(int size, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 	~Tile();
+protected:
+	Element * image;
+//Functions
+public:
+
 	int debug = 100;
 	std::string toString();
+};
+class TileSetTile :public Tile {
+public:
+	int tileSetX;
+	int tileSetY;
+	int tileSize;
+	TileSetTile(std::string url, int x, int y, int tileSize);
+	TileSetTile(Image *, int x, int y, int tileSize);
+	Element * getImage() ;
 };
 
 class ObjectID {
@@ -61,6 +71,7 @@ public:
 	std::string toString(bool);
 	int coordToIndex(int x, int y);
 	void setManualRender(bool);
+	int createTileSet(std::string);
 private:
 	void renderMap();
 

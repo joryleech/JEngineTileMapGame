@@ -18,13 +18,10 @@ void TilemapEditor::update()
 		}
 		if (!input->isKeyDown(SDL_SCANCODE_SPACE)) {
 			this->releaseGrab();
+			
+		
+		
 		}
-		
-		
-		
-
-
-
 
 	}
 }
@@ -37,18 +34,20 @@ void TilemapEditor::onStart()
 	//Create Tilemap items
 	this->tileMap = new Tilemap(500, 200, 32);
 	Image * image2 = new Image("Resources/Images/ImageExample1.png", 200, 200);
+	this->tileMap->createTileSet("Resources/Images/testTileSet.png");
 	int x[] =
 	{
-		-1,-1,0,-1,
-		-1,-1,0,0,
-		-1,-1,0,0,
-		-1,-1,0,-1
+		1,2,3,4,
+		23,24,24,25,
+		33,34,34,35,
+		-1,-1,23,-1
 
 	};
-	for (int i = 0; i < 2; i++) {
-		this->tileMap->setPartialMap(x, i, 0, 4, 4);
-	}
+
+	this->tileMap->setPartialMap(x, 0, 0, 4, 4);
+
 	this->getScreen()->addElement(tileMap->getSurface());
+
 
 
 
@@ -82,6 +81,8 @@ void TilemapEditor::grab() {
 		tileMap->getSurface()->moveTo(tilemapDragOriginX + mouseXMoved, tilemapDragOriginY + mouseYMoved);
 	}
 }
+
+
 void TilemapEditor::releaseGrab() {
 	dragMouseOriginX = -1;
 	dragMouseOriginY = -1;

@@ -2,6 +2,7 @@
 #include <iostream>
 #include <list>
 #include <sstream>
+#include <string>
 Element * Tile::getImage()
 {
 	return this->image;
@@ -123,6 +124,7 @@ void Tilemap::forceRenderMap()
 
 void Tilemap::renderTile(int x, int y, int tileID) {
 	Element * tileToRender = this->getTileImage(tileID);
+
 	tileToRender->moveTo(x*tilesize, y*tilesize);
 	surface->renderElement(tileToRender);
 	tileToRender->moveTo(0, 0);
@@ -142,7 +144,7 @@ Element * Tilemap::getTileImage(int index) {
 		return (debug.getImage());
 	}
 	else {
-		return (tiles[0]->getImage());
+		return (tiles[index]->getImage());
 	}
 	return (debug.getImage());
 }
@@ -193,5 +195,42 @@ void Tilemap::setManualRender(bool manualRenderT)
 	this->manualRender = manualRenderT;
 }
 
+int Tilemap::createTileSet(std::string url)
+{
+	int startingIndex= (this->tiles.size());
+	Image * currentTileSet = new Image(url, 0, 0);
+	int tilesPerLine = (int)(currentTileSet->getWidth() / this->tilesize);
+	int linesOfTiles = (int)(currentTileSet->getHeight() / this->tilesize);
+		for (int y = 0; y < linesOfTiles; y++) {
+			for (int x = 0; x < tilesPerLine; x++)
+			{
+				tiles.push_back(new TileSetTile(currentTileSet, x, y,this->tilesize));
+			}
+		}
 
 
+	return startingIndex;
+}
+
+Element * TileSetTile::getImage()
+{
+	Image * imageTemp = (Image*)this->image; //This does not create a new instance, Temp image is only used to reference Image only functions to the element.
+	imageTemp->setBlit(this->tileSetX*this->tileSize, this->tileSetY*this->tileSize, tileSize, tileSize);
+	return imageTemp;
+}
+
+
+TileSetTile::TileSetTile(Image * image, int x, int y, int tileSize) {
+	this->image = image;
+	this->tileSetX = x;
+	this->tileSetY = y;
+	this->tileSize = tileSize;
+}
+
+
+TileSetTile::TileSetTile(std::string url, int x, int y, int tileSize) {
+	this->image = new Image(url, 0, 0);
+	this->tileSetX = x;
+	this->tileSetY = y;
+	this->tileSize = tileSize;
+}

@@ -30,6 +30,9 @@ private:
 	//Menu
 	Rect * menuBackground;
 
+	//Tile Placement 
+	int currentTileID = 0;
+
 
 };
 
