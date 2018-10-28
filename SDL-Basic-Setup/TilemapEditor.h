@@ -4,6 +4,21 @@
 #include "Tilemap.h"
 #include "gameController.h"
 #include "Tilemap.h"
+class MenuButton {
+public:
+	Image * image;
+	GameController::GameState * parent;
+	JBoundingBox * boundingBox;
+	void click();
+	MenuButton(double x, double y, std::string imageURL, void(*click_func_ptr)(), void(*release_func_ptr)(), GameController::GameState * parent);
+	void update();
+	void release();
+	static void blankFunction();
+	~MenuButton();
+	void(*click_func_ptr)();
+	void(*release_func_ptr)();
+};
+
 class TilemapEditor : public GameController::GameState{
 public:
 	TilemapEditor(GameController * parent) : GameState(parent) {};
@@ -29,6 +44,8 @@ private:
 	JBoundingBox * nonMenuSpace;
 	//Menu
 	Rect * menuBackground;
+	
+	MenuButton * leftTileSelectorButton;
 
 	//Tile Placement 
 	int currentTileID = 3;
@@ -36,16 +53,5 @@ private:
 
 };
 
-class MenuButton {
-	Image * image;
-	JBoundingBox * boundingBox;
-	MenuButton(double x, double y, std::string imageURL, void* click_func_ptr, void* release_func_ptr);
-	MenuButton(double x, double y, std::string imageURL, void(*click_func_ptr)(), void(*release_func_ptr)());
-	void click();
-	void release();
-	~MenuButton();
-	void (*click_func_ptr)();
-	void (*release_func_ptr)();
-};
 
 #endif

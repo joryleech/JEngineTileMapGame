@@ -15,7 +15,8 @@ void TilemapEditor::update()
 
 
 
-
+	//Menu Interaction
+	leftTileSelectorButton->update();
 
 
 
@@ -29,9 +30,7 @@ void TilemapEditor::update()
 		this->parent->engine->debugPrint("exporting");
 
 	}
-	if (input->wasMouseClicked(0)) {
-		std::cout << "Pressed";
-	}
+
 	if (nonMenuSpace->isColliding(input->getMouseXPos(), input->getMouseYPos())) {
 		//Grab function, moves the tilemap equal to the ammount moved while 
 		if (input->isKeyDown(SDL_SCANCODE_SPACE)) {
@@ -83,6 +82,9 @@ void TilemapEditor::onStart()
 	this->menuBackground = new Rect(this->screen->getWidth() - menuWidth, 0, menuWidth, this->screen->getHeight(),255,255,255, 255);
 	this->getScreen()->addElement(menuBackground);
 	
+	this->leftTileSelectorButton = new MenuButton(this->screen->getWidth() - menuWidth, (double)100, "Resources/Images/TileMapEditor/menuLeftButton.png", MenuButton::blankFunction, MenuButton::blankFunction, (GameState*)this);
+
+
 }
 
 void TilemapEditor::onExit()
@@ -117,7 +119,7 @@ void TilemapEditor::releaseGrab() {
 }
 
 
-MenuButton::MenuButton(double x, double y, std::string imageURL, void (*click_func_ptr)(), void (*release_func_ptr)())
+MenuButton::MenuButton(double x, double y, std::string imageURL, void (*click_func_ptr)(), void (*release_func_ptr)(),GameController::GameState * parent)
 {
 	this->image = new Image(imageURL, x, y);
 	
@@ -125,21 +127,49 @@ MenuButton::MenuButton(double x, double y, std::string imageURL, void (*click_fu
 
 	this->click_func_ptr = click_func_ptr;
 	this->release_func_ptr = release_func_ptr;
+	this->parent = parent;
+	this->parent->getScreen()->addElement(this->image);
+}
 
+void MenuButton::update() {
+	JInput * input = parent->parent->engine->getJInput();
+	float mouseX, mouseY;
+	mouseX = input->getMouseXPos();
+	mouseY = input->getMouseYPos();
+
+	if (this->boundingBox->isColliding(mouseX,mouseY)) {
+		if (input->wasMouseClicked(0)) {
+			click();
+		}
+		if (input->wasMouseReleased(0)) {
+			release();
+		}
+	}
 }
 void MenuButton::click()
 {
-	click_func_ptr();
+	if (this->click_func_ptr != nullptr) {
+		click_func_ptr();
+	}
 }
 
 
 void MenuButton::release()
 {
-	release_func_ptr();
+	if (this->release_func_ptr != nullptr) {
+		release_func_ptr();
+	}
+
+}
+
+void MenuButton::blankFunction()
+{
+
 }
 
 MenuButton::~MenuButton()
 {
+	this->parent->getScreen()->getImageManager()->removeAndDeleteElement(this->image);
 	delete(image);
 	delete(boundingBox);
 }
