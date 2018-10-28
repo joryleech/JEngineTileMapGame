@@ -775,7 +775,10 @@ JInput::~JInput()
 
 }
 void JInput::update() {
-
+	this->leftMouseClicked = false;
+	this->leftMouseReleased = false;
+	this->rightMouseClicked = false;
+	this->rightMouseReleased = false;
 	if (SDL_PollEvent(&event) != 0) {
 		if (event.type == SDL_QUIT) {
 			windowAndRenderer->windowShutDown = true;
@@ -787,10 +790,22 @@ void JInput::update() {
 		if (event.type == SDL_MOUSEBUTTONDOWN)
 		{
 			this->mouseDown = true;
+			if (event.button.button == SDL_BUTTON_LEFT) {
+				leftMouseClicked = true;
+			}
+			if (event.button.button == SDL_BUTTON_RIGHT) {
+				rightMouseClicked = true;
+			}
 		}
 		if (event.type == SDL_MOUSEBUTTONUP)
 		{
 			this->mouseDown = false;
+			if (event.button.button == SDL_BUTTON_LEFT) {
+				leftMouseReleased = true;
+			}
+			if (event.button.button == SDL_BUTTON_RIGHT) {
+				rightMouseReleased = true;
+			}
 		}
 	
 	}
@@ -805,6 +820,20 @@ int JInput::getMouseYPosRaw() {
 	int x; int y;
 	SDL_GetMouseState(&x, &y);
 	return y;
+}
+bool JInput::wasMouseClicked(int mouseButton)
+{
+	if (mouseButton == 0) {
+		return leftMouseClicked;
+	}
+	return false;
+}
+bool JInput::wasMouseReleased(int mouseButton)
+{
+	if (mouseButton == 0) {
+		return leftMouseReleased;
+	}
+	return false;
 }
 int JInput::getMouseXPos() {
 	return getMouseXPosRaw()/windowAndRenderer->getScreenScaleX();

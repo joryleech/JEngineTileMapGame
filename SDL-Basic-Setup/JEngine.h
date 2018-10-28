@@ -180,8 +180,8 @@ public:
 	void update();
 	int getMouseXPosRaw();
 	int getMouseYPosRaw();
-	bool wasMouseClicked();
-	bool wasMouseReleased();
+	bool wasMouseClicked(int mouseButton);
+	bool wasMouseReleased(int mouseButton);
 
 	int getMouseXPos();
 	int getMouseYPos();
@@ -193,9 +193,13 @@ public:
 private:
 	int timeout;
 	int mouseX;
+
 	bool mouseDown;
-	bool mouseClicked;
-	bool mouseReleased;
+	bool leftMouseClicked;
+	bool leftMouseReleased;
+	bool rightMouseClicked;
+	bool rightMouseReleased;
+
 	SDL_Event event;
 	int mouseY;
 	const Uint8 *keyState;

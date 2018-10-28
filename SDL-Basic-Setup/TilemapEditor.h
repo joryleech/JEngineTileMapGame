@@ -31,7 +31,7 @@ private:
 	Rect * menuBackground;
 
 	//Tile Placement 
-	int currentTileID = -1;
+	int currentTileID = 3;
 	Image * tileCursor;
 
 };

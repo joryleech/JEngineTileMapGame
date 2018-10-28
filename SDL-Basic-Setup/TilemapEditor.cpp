@@ -7,17 +7,30 @@
 void TilemapEditor::update()
 {
 	JInput * input = parent->engine->getJInput();
-	tileCursor->moveTo(input->getMouseXPos(), input->getMouseYPos());
+	tileCursor->moveTo(input->getMouseXPos()-(this->tileMap->getTileSize()/2), input->getMouseYPos() - (this->tileMap->getTileSize() / 2));
 	tileCursor->duplicateElement(tileMap->getTileImage(currentTileID), this->tileMap->getTileSize(), this->tileMap->getTileSize());
 	if (parent->engine->getJInput()->isKeyDown(SDL_SCANCODE_F1)) {
 		printf("%f\n", parent->engine->getDeltaTime());
 	}
+
+
+
+
+
+
+
+	
+
+
 
 	//Non-Menu Mouse Interaction
 	if (input->isKeyDown(SDL_SCANCODE_C))
 	{
 		this->parent->engine->debugPrint("exporting");
 
+	}
+	if (input->wasMouseClicked(0)) {
+		std::cout << "Pressed";
 	}
 	if (nonMenuSpace->isColliding(input->getMouseXPos(), input->getMouseYPos())) {
 		//Grab function, moves the tilemap equal to the ammount moved while 
@@ -29,7 +42,7 @@ void TilemapEditor::update()
 			if (input->isMouseDown()) {
 				int gridX = (int)(input->getMouseXPos() - tileMap->getSurface()->getX())/32;
 				int gridY = (int)(input->getMouseYPos() - tileMap->getSurface()->getY())/32;
-				std::cout <<"GridX:"<< gridX <<"\n";
+
 				this->tileMap->setTile(gridX, gridY, currentTileID);
 			}
 		}
