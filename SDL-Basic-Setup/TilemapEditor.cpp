@@ -1,16 +1,24 @@
 #include "TilemapEditor.h"
 #include "JEngine.h"
 #include <string>
-
+#include <windows.h>
+#include <stdio.h>
+#include <iostream>
 void TilemapEditor::update()
 {
 	JInput * input = parent->engine->getJInput();
-
+	tileCursor->moveTo(input->getMouseXPos(), input->getMouseYPos());
+	tileCursor->duplicateElement(tileMap->getTileImage(currentTileID), this->tileMap->getTileSize(), this->tileMap->getTileSize());
 	if (parent->engine->getJInput()->isKeyDown(SDL_SCANCODE_F1)) {
 		printf("%f\n", parent->engine->getDeltaTime());
 	}
 
 	//Non-Menu Mouse Interaction
+	if (input->isKeyDown(SDL_SCANCODE_C))
+	{
+		this->parent->engine->debugPrint("exporting");
+
+	}
 	if (nonMenuSpace->isColliding(input->getMouseXPos(), input->getMouseYPos())) {
 		//Grab function, moves the tilemap equal to the ammount moved while 
 		if (input->isKeyDown(SDL_SCANCODE_SPACE)) {
@@ -18,13 +26,18 @@ void TilemapEditor::update()
 		}
 		if (!input->isKeyDown(SDL_SCANCODE_SPACE)) {
 			this->releaseGrab();
-			
-		
-		
+			if (input->isMouseDown()) {
+				int gridX = (int)(input->getMouseXPos() - tileMap->getSurface()->getX())/32;
+				int gridY = (int)(input->getMouseYPos() - tileMap->getSurface()->getY())/32;
+				std::cout <<"GridX:"<< gridX <<"\n";
+				this->tileMap->setTile(gridX, gridY, currentTileID);
+			}
 		}
 
 	}
 }
+
+
 
 
 void TilemapEditor::onStart()
@@ -47,9 +60,9 @@ void TilemapEditor::onStart()
 	this->tileMap->setPartialMap(x, 0, 0, 4, 4);
 
 	this->getScreen()->addElement(tileMap->getSurface());
-
-
-
+	//Changing Tile
+	this->tileCursor = new Image("Resources/Images/testTileSet.png", 100, 100);
+	this->screen->addElement(tileCursor);
 
 	nonMenuSpace = new JBoundingBox(0, 0, this->screen->getWidth() - menuWidth, this->screen->getHeight());
 	//Create Menu Items

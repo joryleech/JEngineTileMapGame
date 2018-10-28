@@ -12,13 +12,13 @@ Element * Tile::getImage()
 Tile::Tile(std::string url)
 { 
 	this->image = new Image(url, 0, 0);
-
+	this->image->setBlendMode(SDL_BLENDMODE_BLEND);
 }
 
 Tile::Tile(int size ,Uint8 r,Uint8 g,Uint8 b,Uint8 a)
 {
 	this->image = new Rect(0,0,size,size,r,g,b,a);
-	this->image->setBlendMode(SDL_BLENDMODE_BLEND);
+	this->image->setBlendMode(SDL_BLENDMODE_NONE);
 }
 
 Tile::~Tile()
@@ -51,6 +51,11 @@ ObjectID::ObjectID()
 	ObjectID(0);
 }
 
+int Tilemap::getTileSize()
+{
+	return tilesize;
+}
+
 JRenderer * Tilemap::getSurface()
 {
 	return surface;
@@ -58,11 +63,12 @@ JRenderer * Tilemap::getSurface()
 
 Tilemap::Tilemap(int width, int height,int tilesize)
 {
-
+	this->clear.getImage()->setBlendMode(SDL_BLENDMODE_NONE);
 	this->tilesize = tilesize;
 	this->width = width;
 	this->height = height;
 	this->surface = new JRenderer(0, 0, width*tilesize, height*tilesize);
+	
 	for (int i = 0; i < width*height; i++) {
 		tileMap.push_back(ObjectID(0,""));
 	}
@@ -234,3 +240,4 @@ TileSetTile::TileSetTile(std::string url, int x, int y, int tileSize) {
 	this->tileSetY = y;
 	this->tileSize = tileSize;
 }
+

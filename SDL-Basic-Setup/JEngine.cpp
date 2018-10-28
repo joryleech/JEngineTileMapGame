@@ -179,6 +179,48 @@ Image::Image(Image* img, int x, int y) {
 	this->setScale(1);
 	iX = 0;iY = 0;blitWidth = 0;blitHeight = 0;
 }
+Image::Image(Element * url, int x, int y, int width, int height)
+{
+	this->x = x;
+	this->y = y;
+
+	this->duplicateElement(url, width, height);
+	this->setScale(1);
+	iX = 0; iY = 0; blitWidth = 0; blitHeight = 0;
+	
+}
+
+SDL_Texture * Image::duplicateElement(Element * element,int width,int height)
+{
+	if (imageOwned && (this->image != NULL || this->image != nullptr)) {
+		SDL_DestroyTexture(this->image);
+		image = NULL;
+	}
+	
+	image = SDL_CreateTexture(windowAndRenderer->getRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, width, height);
+	if (image == NULL) {
+		std::string error(SDL_GetError());
+		windowAndRenderer->debugPrint("Unable To Create Texture from Element:" + error);
+		return nullptr;
+	}
+
+
+	SDL_Texture * parentTexture = SDL_GetRenderTarget(windowAndRenderer->getRenderer());
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(),image);
+
+	element->render();
+
+	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), parentTexture);
+	
+	this->imgwidth = width;
+	this->imgheight = height;
+	imageOwned = true;
+	
+	return this->image;
+	//TODO
+}
+
+
 double Image::getWidth()
 {
 	if (blitWidth==0) {
@@ -289,8 +331,9 @@ Rect::Rect(double x2, double y2, float width2, float height2) {
 }
 void Rect::render()
 {
-	rect = { (int)std::round(this->x),(int)std::round(this->y),(int)std::round(this->width*this->getScaleX()),(int)std::round(this->height*this->getScaleY()) };
+	SDL_SetRenderDrawBlendMode(windowAndRenderer->getRenderer(),this->blendmode);
 
+	rect = { (int)std::round(this->x),(int)std::round(this->y),(int)std::round(this->width*this->getScaleX()),(int)std::round(this->height*this->getScaleY()) };
 	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), color.r, color.g, color.b, color.a);
 	if (this->filled) {
 		SDL_RenderFillRect(windowAndRenderer->getRenderer(), &rect);
@@ -298,7 +341,7 @@ void Rect::render()
 	else {
 		SDL_RenderDrawRect(windowAndRenderer->getRenderer(), &rect);
 	}
-	
+	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0, 0,0, 255);
 }
 
 float Rect::getWidth()
@@ -362,6 +405,7 @@ Element * JRenderer::addElement(Element * e)
 
 void JRenderer::renderElement(Element * e)
 {
+
 	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->renderTexture);
 	SDL_SetTextureBlendMode(this->renderTexture, (e)->getBlendMode());
 
@@ -379,13 +423,13 @@ void JRenderer::forceRenderTexture() {
 	std::list<Element*>::iterator itEnd = this->imageManager->getListPointer()->end();
 	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), this->renderTexture);
 	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0, 0, 0, 0);
-	SDL_SetTextureBlendMode(this->renderTexture, SDL_BLENDMODE_BLEND);
+	SDL_SetTextureBlendMode(this->renderTexture, this->getBlendMode());
 
 	SDL_RenderClear(windowAndRenderer->getRenderer());
 	for (it = this->imageManager->getListPointer()->begin(); it != itEnd; ++it)
 	{
 		if (!(*it)->isHidden()) {
-			SDL_SetTextureBlendMode(this->renderTexture, (*it)->getBlendMode());
+			
 			(*it)->render();
 		}
 	}
@@ -404,6 +448,7 @@ void JRenderer::render() {
 	SDL_SetRenderTarget(windowAndRenderer->getRenderer(), parentTexture);
 	SDL_Rect dest = { (int)std::round(this->x),(int)std::round(this->y),((int)this->width*this->getScaleX()), ((int)this->height*this->getScaleY()) };
 
+	SDL_SetTextureBlendMode(this->renderTexture, (this)->getBlendMode());
 	SDL_RenderCopyEx(windowAndRenderer->getRenderer(), this->renderTexture, NULL, &dest, this->angle, NULL, (SDL_RendererFlip)(flipHoriz | flipVert));
 }
 void JRenderer::forceClearTexture()
@@ -419,8 +464,10 @@ SDL_Texture * JRenderer::createRenderTexture()
 		SDL_DestroyTexture(this->renderTexture);
 		this->renderTexture = nullptr;
 	}
+	
 	SDL_SetRenderDrawColor(windowAndRenderer->getRenderer(), 0, 0, 0, 0);
 	this->renderTexture=SDL_CreateTexture(windowAndRenderer->getRenderer(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, this->width, this->height);
+	SDL_SetTextureBlendMode(this->getTexture(), this->blendmode);
 	std::cout<<"SDL_Init failed: %s\n" << SDL_GetError();
 	if (this->renderTexture == NULL) {
 		std::cout << "Unable to create renderer texture";

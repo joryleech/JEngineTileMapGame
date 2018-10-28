@@ -47,7 +47,7 @@ class Tilemap{
 public:
 	int height, width;
 	Tile debug;
-	Tile clear = Tile(32, 255, 0, 255, 0);
+	Tile clear = Tile(32, 255, 0, 255, 12);
 	std::vector<Tile*> tiles;
 private:
 	int tilesize;
@@ -55,6 +55,7 @@ private:
 	JRenderer * surface;
 	bool manualRender = false;
 public:
+	int getTileSize();
 	JRenderer * getSurface();
 	Tilemap(int width,int height,int tilesize);
 	void setMap(int newMap[]);

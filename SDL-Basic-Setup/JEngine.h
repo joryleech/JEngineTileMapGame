@@ -97,6 +97,8 @@ public:
 	void render();
 	Image(std::string url,int x,int y);
 	Image(Image* url, int x, int y);
+	Image(Element * url, int x, int y, int width, int height);
+	SDL_Texture * duplicateElement(Element * element, int width, int height);
 	~Image();
 	double getWidth();
 	double getHeight();
