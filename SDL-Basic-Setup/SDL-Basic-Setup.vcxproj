@@ -133,12 +133,15 @@
     <ClCompile Include="Example.cpp" />
     <ClCompile Include="gameController.cpp" />
     <ClCompile Include="JEngine.cpp" />
+    <ClCompile Include="pugixml.cpp" />
     <ClCompile Include="TestCode.cpp" />
     <ClCompile Include="Tilemap.cpp" />
     <ClCompile Include="TilemapEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gameController.h" />
+    <ClInclude Include="pugiconfig.hpp" />
+    <ClInclude Include="pugixml.hpp" />
     <ClInclude Include="TilemapEditor.h" />
     <ClInclude Include="Tilemap.h" />
     <ClInclude Include="JEngine.h" />

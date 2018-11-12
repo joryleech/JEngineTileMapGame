@@ -243,3 +243,7 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/SDL-Basic-Setup/pugiconfig.hpp
+/SDL-Basic-Setup/pugixml.hpp
+/SDL-Basic-Setup/pugixml.cpp
+/SDL-Basic-Setup/Maps

@@ -3,6 +3,8 @@
 #include <list>
 #include <sstream>
 #include <string>
+#include <fstream>
+#include "pugixml.hpp" as pugi
 Element * Tile::getImage()
 {
 	return this->image;
@@ -239,5 +241,105 @@ TileSetTile::TileSetTile(std::string url, int x, int y, int tileSize) {
 	this->tileSetX = x;
 	this->tileSetY = y;
 	this->tileSize = tileSize;
+}
+
+bool Tilemap::exportToFile(std::string url) {
+	return this->exportToFile("map", url);
+}
+
+bool Tilemap::exportToFile(std::string mapName, std::string url) {
+		pugi::xml_document xmlDocument;
+		pugi::xml_node node = xmlDocument.append_child("Layer1");
+		exportToXMLNode("Layer1",node);
+		pugi::xml_document temp;
+		temp.append_child("Destory");
+
+
+
+
+		std::ofstream file;
+		file.open(url+mapName+".xml");
+		xmlDocument.print(file);
+		file.close();
+		
+
+
+		return true;
+}
+
+
+
+std::vector<std::string> Tilemap::getParseableItemsFromString(std::string mapText) {
+	int currentCharIndex = 0;
+	std::vector<char> level;
+	std::vector<std::string> toReturn;
+	std::stringstream currentString;
+	while (currentCharIndex < mapText.length()) {
+		char currentChar = mapText.at(currentCharIndex);
+		if (level.size()<1) {
+
+		}
+		if (currentChar == '\\' && currentCharIndex <= mapText.length() - 2) {
+			//If escape character is called ignore it
+			currentCharIndex += 2;
+			continue;
+		}
+		if (currentChar == '[') {
+			level.push_back('[');
+		}
+
+
+	}
+	return toReturn;
+}
+
+void Tilemap::exportToXMLNode(std::string layerName, pugi::xml_node& layer) {
+	pugi::xml_node simpleTiles = layer.append_child("simpleTiles");
+	layer.append_attribute("width") = this->width;
+	layer.append_attribute("height") = this->height;
+	simpleTiles.append_attribute("data") = this->generateSimpleTiles().c_str();
+	pugi::xml_node complexTiles = layer.append_child("complexTiles");
+	generateComplexTiles(complexTiles);
+
+}
+
+void Tilemap::generateComplexTiles(pugi::xml_node& node) {
+	for (int i = 0; i < this->tileMap.size(); i++) {
+		if (tileMap.at(i).info.length() > 0) {
+			std::string name= "Tile" + i;
+			pugi::xml_node currentNode = node.append_child("TILE");
+			currentNode.append_attribute("index") = i;
+			currentNode.append_attribute("data") = tileMap.at(i).info.c_str();
+		}
+	}
+ 
+}
+
+std::string Tilemap::generateSimpleTiles() {
+	std::stringstream mapStream;
+	for (int tile = 0; tile < this->tileMap.size(); tile++) {
+		std::stringstream tileStream;
+		ObjectID currentTile = tileMap.at(tile);
+		tileStream << (&currentTile)->tile;
+		if (tile + 1 < tileMap.size()) {
+			tileStream << ",";
+		}
+		mapStream << tileStream.str();
+	}
+	return mapStream.str();
+}
+
+std::string Tilemap::toString() {
+	std::stringstream mapStream;
+	for (int tile = 0; tile < this->tileMap.size(); tile++) {
+		std::stringstream tileStream;
+		ObjectID currentTile = tileMap.at(tile);
+		tileStream << "" << (&currentTile)->tile;
+		if (!currentTile.info.length()<1) {
+			tileStream << ":\"" << (&currentTile)->info <<"\"";
+		}
+		mapStream << tileStream.str();
+	}
+	return mapStream.str();
 }
 

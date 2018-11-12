@@ -3,6 +3,7 @@
 #include <string>
 #include <list>
 #include <vector>
+#include "pugixml.hpp" as pugi
 #ifndef TilemapH
 #define TilemapH
 
@@ -28,6 +29,7 @@ public:
 	int tileSetY;
 	int tileSize;
 	TileSetTile(std::string url, int x, int y, int tileSize);
+	std::string toString();
 	TileSetTile(Image *, int x, int y, int tileSize);
 	Element * getImage() ;
 };
@@ -73,6 +75,13 @@ public:
 	int coordToIndex(int x, int y);
 	void setManualRender(bool);
 	int createTileSet(std::string);
+	bool exportToFile(std::string url);
+	bool exportToFile(std::string mapName, std::string url);
+	std::vector<std::string> getParseableItemsFromString(std::string mapText);
+	void exportToXMLNode(std::string layerName, pugi::xml_node & layer);
+	void generateComplexTiles(pugi::xml_node & layer);
+	std::string generateSimpleTiles();
+	std::string toString();
 private:
 	void renderMap();
 

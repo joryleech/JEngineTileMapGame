@@ -4,6 +4,13 @@
 #include <windows.h>
 #include <stdio.h>
 #include <iostream>
+#include <functional>
+void TilemapEditor::increaseTileID() {
+	this->currentTileID++;
+}
+void TilemapEditor::decreaseTileID() {
+	this->currentTileID--;
+}
 void TilemapEditor::update()
 {
 	JInput * input = parent->engine->getJInput();
@@ -17,6 +24,7 @@ void TilemapEditor::update()
 
 	//Menu Interaction
 	leftTileSelectorButton->update();
+	rightTileSelectorButton->update();
 
 
 
@@ -28,7 +36,7 @@ void TilemapEditor::update()
 	if (input->isKeyDown(SDL_SCANCODE_C))
 	{
 		this->parent->engine->debugPrint("exporting");
-
+		this->tileMap->exportToFile("Maps/Map");
 	}
 
 	if (nonMenuSpace->isColliding(input->getMouseXPos(), input->getMouseYPos())) {
@@ -54,10 +62,11 @@ void TilemapEditor::update()
 
 void TilemapEditor::onStart()
 {
+	menuWidth = parent->engine->getWidth() / 200;
 	Rect * background = new Rect(0, 0, screen->getWidth(), screen->getHeight(), 224, 224, 224, 255);
 	screen->addElement(background);
 	//Create Tilemap items
-	this->tileMap = new Tilemap(500, 200, 32);
+	this->tileMap = new Tilemap(500, 500, 32);
 	Image * image2 = new Image("Resources/Images/ImageExample1.png", 200, 200);
 	this->tileMap->createTileSet("Resources/Images/testTileSet.png");
 	int x[] =
@@ -68,7 +77,8 @@ void TilemapEditor::onStart()
 		-1,-1,23,-1
 
 	};
-
+	this->tileMap->setTile(50, 50, 13, "INFO");
+	this->tileMap->setTile(50, 51, 13, "INFO2");
 	this->tileMap->setPartialMap(x, 0, 0, 4, 4);
 
 	this->getScreen()->addElement(tileMap->getSurface());
@@ -81,9 +91,10 @@ void TilemapEditor::onStart()
 	this->screen->addElement(new Rect(this->screen->getWidth() - menuWidth - 5, 0, 5, this->screen->getHeight(),0,0,0,20));
 	this->menuBackground = new Rect(this->screen->getWidth() - menuWidth, 0, menuWidth, this->screen->getHeight(),255,255,255, 255);
 	this->getScreen()->addElement(menuBackground);
-	
-	this->leftTileSelectorButton = new MenuButton(this->screen->getWidth() - menuWidth, (double)100, "Resources/Images/TileMapEditor/menuLeftButton.png", MenuButton::blankFunction, MenuButton::blankFunction, (GameState*)this);
 
+	this->leftTileSelectorButton = new MenuButton(this->screen->getWidth() - menuWidth, this->getScreen()->getHeight() - 100, "Resources/Images/TileMapEditor/menuLeftButton.png", std::bind(&TilemapEditor::decreaseTileID, this), MenuButton::blankFunction, (GameState*)this);
+	
+	this->rightTileSelectorButton = new MenuButton(this->screen->getWidth() - 100, this->getScreen()->getHeight() - 100, "Resources/Images/TileMapEditor/menuLeftButton.png", std::bind(&TilemapEditor::increaseTileID, this), MenuButton::blankFunction, (GameState*)this);
 
 }
 
@@ -119,7 +130,7 @@ void TilemapEditor::releaseGrab() {
 }
 
 
-MenuButton::MenuButton(double x, double y, std::string imageURL, void (*click_func_ptr)(), void (*release_func_ptr)(),GameController::GameState * parent)
+MenuButton::MenuButton(double x, double y, std::string imageURL, std::function<void()> click_func_ptr, std::function<void()> release_func_ptr,GameController::GameState * parent)
 {
 	this->image = new Image(imageURL, x, y);
 	

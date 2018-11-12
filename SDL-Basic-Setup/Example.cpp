@@ -190,6 +190,7 @@ void tilingTest1() {
 void gameStateTest1() {
 	JEngine * engine = new JEngine();
 	engine->init("GameState Test", 1920, 1080, -1);
+	engine->setWindowFullScreen();
 	GameController * gc = new GameController(engine);
 	TilemapEditor * tme = new TilemapEditor(gc);
 	gc->pushState(tme);
